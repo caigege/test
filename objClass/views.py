@@ -1,0 +1,707 @@
+# Create your views here.
+import json
+
+import django
+from django.http import HttpResponse, JsonResponse
+
+import objClass
+from objClass.models import Attribute, Relation, Prototype, ObjInit, Attribute_problem, Objective, Plan, \
+    PlanStepProblem, PlanStepProblemScheme, EnvironmentProblemPrototype
+
+
+# 1 写入数据--流程写入
+def createObjective(request):
+    '''
+    创造目标-1
+    :return:
+    '''
+    name = request.GET.get("name")
+    description = request.GET.get("description")
+    print("name:" + name)
+    try:
+        Objective.objects.create(name=name, description=description)
+    except django.db.utils.IntegrityError:
+        return HttpResponse("属性name命名重复")
+    return HttpResponse("ok")
+
+
+def createPlan(request):
+    '''
+    计划 -2
+    :return:
+    '''
+    name = request.GET.get("name")
+    description = request.GET.get("description")
+    step = request.GET.get("step")
+    objectiveId = request.GET.get("objectiveId")
+    objective = Objective.objects.filter(id=objectiveId)
+    if (objective.count() == 0):
+        return HttpResponse("目标id:" + str(objectiveId) + " 不存在")
+    print("计划 : ", name, description, step, objectiveId)
+    Plan.objects.create(name=name, description=description, step=step, objectiveId=objective[0])
+    return HttpResponse("ok")
+
+
+def createPlanStepProblem(request):
+    '''
+    3 - 0
+    发现计划问题
+    :param request:
+    :return:
+    '''
+    name = request.GET.get("name")
+    description = request.GET.get("description")
+    planId = request.GET.get("planId")
+    plan = Plan.objects.get(id=planId)
+    PlanStepProblem.objects.create(name=name, description=description, planId=plan)
+    return HttpResponse("ok")
+
+
+def addPlanStepProblem(request):
+    '''
+    3 - 1
+    添加问题属性 problemJson:[{"id":1,"name":"问题名称","do":1}] do:1 需要解决的属性;0不需要解决属性
+    '''
+    planStepProblemId = request.GET.get("planStepProblemId")
+    problemJsonStr = request.GET.get("problemJson")
+    print("problemJsonStr:" + problemJsonStr)
+    problemJson = json.loads(problemJsonStr)
+    PlanStepProblem.objects.filter(id=planStepProblemId).update(problemJson=problemJson)
+    return HttpResponse("ok")
+
+
+def planStepProblemSchemeJudge(request):
+    '''
+    4 - 3
+    添加一期方案的执行结果
+    :param request:
+    :return:
+    '''
+    id = request.GET.get("planStepProblemSchemeId")
+    result = request.GET.get("result")
+    PlanStepProblemScheme.objects.filter(id=id).update(result=result)
+    return HttpResponse("ok")
+
+
+def addPlanStepProblemScheme(request):
+    '''
+    4 - 2
+    添加一期收集方案属性
+    :param request:
+    :return:
+    '''
+    id = request.GET.get("planStepProblemSchemeId")
+    schemeJsonStr = request.GET.get("schemeJsonStr")
+    schemeJson = json.load(schemeJsonStr)
+    PlanStepProblemScheme.objects.filter(id=id).update(schemeJson=schemeJson)
+    return HttpResponse("ok")
+
+
+def createPlanStepProblemScheme(request):
+    '''
+    4 - 1
+    写入方案
+    :param request:
+    :return:
+    '''
+    name = request.GET.get("name")
+    description = request.GET.get("description")
+    planStepProblemId = request.GET.get("planStepProblemId")
+    planStepProblem = PlanStepProblem.objects.get(id=planStepProblemId)
+    PlanStepProblemScheme.objects.filter(name=name, description=description, planStepProblemId=planStepProblem)
+    return HttpResponse("ok")
+
+
+# 2.分析数据 分析类别
+def createAttribute(sth):
+    '''
+    方案属性类型
+    :return:
+    '''
+
+    attributeLv = sth.GET.get("attributeLv")
+    name = sth.GET.get("name")
+    description = sth.GET.get("description")
+    try:
+        Attribute.objects.create(attributeLv=attributeLv, name=name, description=description)
+    except django.db.utils.IntegrityError:
+        return HttpResponse("属性命名重复")
+    return HttpResponse("ok")
+
+
+def createAttribute_problem(sth):
+    '''
+    问题属性类型
+    :return:
+    '''
+    name = sth.GET.get("name")
+    description = sth.GET.get("description")
+    try:
+        Attribute_problem.objects.create(name=name, description=description)
+    except django.db.utils.IntegrityError as e:
+        return HttpResponse("属性命名重复:" + str(e))
+    return HttpResponse("ok")
+
+
+def createRelation(sth):
+    '''
+    关系属性类型
+    :return:
+    '''
+    relationLv = sth.GET.get("relationLv")
+    name = sth.GET.get("name")
+    description = sth.GET.get("description")
+    try:
+        Relation.objects.create(relationLv=relationLv, name=name, description=description)
+    except django.db.utils.IntegrityError as e:
+        return HttpResponse("属性命名重复:" + str(e))
+    return HttpResponse("ok")
+
+
+def createPrototype(request):
+    '''
+    原型
+    :return:
+    '''
+    # 判断是否存在
+
+    up_Attribute = request.GET.get("up_Attribute")
+    relationId = request.GET.get("relation")
+    down_Attribute = request.GET.get("down_Attribute")
+    step = request.GET.get("step")
+    if (hasPrototypeObject(down_Attribute, relationId, up_Attribute, step)[0]):
+        cdf = createDef(down_Attribute, relationId, step, up_Attribute)
+        print("cdf:", cdf)
+        if (not cdf):
+            return HttpResponse("ok")
+        else:
+            return HttpResponse(cdf)
+    else:
+        return HttpResponse("重复fail")
+
+
+def addPrototype(request):
+    '''
+    原型打分
+    :param request:
+    :return:
+    '''
+    down_Attribute = request.GET.get("down_Attribute")
+    relationId = request.GET.get("relation")
+    up_Attribute = request.GET.get("up_Attribute")
+    step = request.GET.get("step")
+    successNum = request.GET.get("successNum")
+    failNum = request.GET.get("failNum")
+    hasResult = hasPrototypeObject(down_Attribute, relationId, up_Attribute, step)
+    print("hasResult  : ", hasResult)
+    # print("hasResult-dir  : ", dir(hasResult[1][0]))
+    if (hasResult[0]):
+        # 不存在 True
+        cdf = createDef(down_Attribute, relationId, request, step, up_Attribute)
+        print("cdf:", cdf)
+        if (not cdf):
+            return HttpResponse("ok")
+        else:
+            return HttpResponse(cdf)
+    else:
+        # 添加成功/失败 存在 False
+        print("successNum ： ", successNum)
+        sucR = Prototype.objects.filter(id=hasResult[1][0].id)[0]
+        try:
+            if (int(successNum) == 1):
+                num = sucR.successNum
+                Prototype.objects.filter(id=hasResult[1][0].id).update(successNum=(int(num) + 1))
+            elif (int(failNum == 1)):
+                num2 = sucR.failNum
+                Prototype.objects.filter(id=hasResult[1][0].id).update(successNum=(int(num2) + 1))
+            else:
+                return HttpResponse("统计参数错误1 successNum " + successNum + " *  failNum:" + failNum + " *")
+        except:
+            return HttpResponse("统计参数错误2 successNum " + successNum + " *  failNum:" + failNum + " *")
+    return HttpResponse("ok")
+
+
+def addEnvironmentProblemPrototype(request):
+    '''
+    添加问题和方案积分
+    djsonstr {"successNum":1}{}
+
+    :param request:
+    :return:
+    '''
+    id = request.GET.get("id")
+    djsonstr = request.GET.get("json")
+    djson = json.load(djsonstr)
+    if (djson.get("successNum") is None):
+        EnvironmentProblemPrototype.objects.filter(id=id).update(
+            failNum=EnvironmentProblemPrototype.objects.filter(id=id)[0].failNum + 1)
+    else:
+        EnvironmentProblemPrototype.objects.filter(id=id).update(
+            failNum=EnvironmentProblemPrototype.objects.filter(id=id)[0].successNum + 1)
+
+    return HttpResponse("ok")
+
+
+def createEnvironmentProblemPrototype(request):
+    '''
+    关联 问题 - 方案属性
+    :param request:
+    :return:
+    '''
+    # 问题属性id
+    down_Attribute_problem = request.GET.get("down_Attribute_problem")
+    down_Attribute_problemName = Attribute_problem.objects.get(id=down_Attribute_problem).name
+    up_Attribute_problem = request.GET.get("up_Attribute_problem")
+    up_Prototype = request.GET.get("up_Prototype")
+    up_PrototypeName = Prototype.objects.get(id=up_Prototype).name
+    if (up_Attribute_problem is None or int(up_Attribute_problem) == 0):
+        EnvironmentProblemPrototype.objects.create(down_Attribute_problem=down_Attribute_problem,
+                                                   down_Attribute_problemName=down_Attribute_problemName,
+                                                   up_Prototype=up_Prototype, up_PrototypeName=up_PrototypeName)
+    else:
+        up_Attribute_problemName = Attribute_problem.objects.get(id=up_Attribute_problem).name
+        EnvironmentProblemPrototype.objects.create(up_Attribute_problem=up_Attribute_problem,
+                                                   up_Attribute_problemName=up_Attribute_problemName,
+                                                   down_Attribute_problem=down_Attribute_problem,
+                                                   down_Attribute_problemName=down_Attribute_problemName,
+                                                   up_Prototype=up_Prototype, up_PrototypeName=up_PrototypeName)
+    return HttpResponse("ok")
+
+
+def createObjInit(request):
+    '''
+    属性实例
+    :return:
+    '''
+    name = request.GET.get("name")
+    description = request.GET.get("description")
+    attributeId = request.GET.get("attributeId")
+    print("attributeId : ", attributeId)
+    attributeIdJson = json.loads(attributeId)
+    for i in attributeIdJson:
+        Id = i.get("id")
+        if (Attribute.objects.filter(id=Id).count() == 0):
+            return HttpResponse("属性" + str(Id) + "不存在")
+    print("attributeId : ", attributeIdJson)
+    try:
+        ObjInit.objects.create(name=name, description=description, attributeId=attributeIdJson)
+    except django.db.utils.IntegrityError as e:
+        return HttpResponse("命名name重复 : " + str(e))
+    return HttpResponse("ok")
+
+
+# 2.1分析数据 分析数据
+
+# ---Prototype---
+def getPrototype(request):
+    '''
+    获取原型
+    :param request:
+    :return:
+    '''
+    up_Attribute = request.GET.get("up_Attribute")
+    relationId = request.GET.get("relation")
+    down_Attribute = request.GET.get("down_Attribute")
+    step = request.GET.get("step")
+    hasPro = hasPrototypeObject(down_Attribute, relationId, up_Attribute, step)
+    if (hasPro[0]):
+        cdf = createDef(down_Attribute, relationId, step, up_Attribute)
+        print("cdf:", cdf)
+        if (not cdf):
+            return HttpResponse("ok")
+        else:
+            return HttpResponse(cdf)
+    else:
+        return HttpResponse(hasPro[1].id + "," + hasPro[1].name)
+
+
+def getPrototypeSearch(request):
+    '''
+    获取关系属性 以供选择对已知搜索
+    :param request:
+    :return:
+    '''
+    name = request.GET.get("name")
+    attrs = Prototype.objects.filter(name__contains=name)
+    js = {}
+    jss = []
+    for attr in attrs:
+        js["name"] = attr.name
+        js["id"] = attr.pk
+        jss.append(js)
+        js = {}
+    return HttpResponse(jss)
+
+
+def getRelation(request):
+    '''
+        获取关系属性 以供选择
+        :param request:
+        :return:
+        '''
+    name = request.GET.get("name")
+    attrs = Attribute.objects.filter(name__contains=name)
+    js = {}
+    jss = []
+    for attr in attrs:
+        js["name"] = attr.name
+        js["id"] = attr.pk
+        jss.append(js)
+        js = {}
+    return HttpResponse(jss)
+
+
+def getAttribute(request):
+    '''
+    获取方案属性 以供选择
+    :param request:
+    :return:
+    '''
+    name = request.GET.get("name")
+    attrs = Attribute.objects.filter(name__contains=name)
+    js = {}
+    jss = []
+    for attr in attrs:
+        js["name"] = attr.name
+        js["id"] = attr.pk
+        jss.append(js)
+        js = {}
+    return HttpResponse(jss)
+
+
+# --Prototype--
+def getAttribute_problem(request):
+    '''
+    问题属性模糊查询
+    :param request:
+    :return:
+    '''
+    name = request.GET.get("name")
+    attrs = Attribute_problem.objects.filter(name__contains=name)
+    js = {}
+    jss = []
+    for attr in attrs:
+        js["name"] = attr.name
+        js["id"] = attr.pk
+        jss.append(js)
+        js = {}
+
+    return HttpResponse(jss)
+
+
+def analyseCreateAttribute_problem(request):
+    '''
+    自动分析 1.获取 createPlanStepProblem 生成的问题
+    0.查询是否有问题属性 todo
+    1.没有的定义出问题属性
+    2.
+    :param request:
+    :return:
+    '''
+    pass
+
+
+# 3.方案调用
+
+def getObjInit(request):
+    '''
+    attributeId={"id":1}
+    :param request:
+    :return:
+    '''
+    attributeId = request.GET.get("attributeId")
+    obj = ObjInit.objects.filter(attributeId__in=attributeId)
+    return JsonResponse(obj)
+
+def checkSchemeFristStep(request):
+    '''
+    根据方案查询原型
+    :param request:
+    :return:
+    '''
+
+
+def checkSchemeFristStep(request):
+    '''
+    给出方案 第一步
+    :param request:
+    :return:
+    '''
+    down_Attribute_problem = request.GET.get("down_Attribute_problem")
+    up_Attribute_problem = 0
+    EnvirScheme = cS(down_Attribute_problem, up_Attribute_problem)
+    return HttpResponse(EnvirScheme)
+
+
+def cS(down_Attribute_problem, up_Attribute_problem):
+    # 根据问题属性 查询方案--
+
+    EnvirScheme = EnvironmentProblemPrototype.objects.filter(up_Attribute_problem=up_Attribute_problem,
+                                                             down_Attribute_problem=down_Attribute_problem)
+    return EnvirScheme
+
+
+def checkScheme(request):
+    '''
+    给出方案 第二步以后
+    :param request:
+    :return:
+    '''
+    # 根据问题属性 查询方案--
+    down_Attribute_problem = request.GET.get("down_Attribute_problem")
+    up_Attribute_problem = request.GET.get("up_Attribute_problem")
+    EnvirScheme = cS(down_Attribute_problem, up_Attribute_problem)
+    return HttpResponse(EnvirScheme)
+
+
+def createDef(down_Attribute, relationId, step, up_Attribute):
+    try:
+        attribute1 = Attribute.objects.get(id=up_Attribute)
+    except objClass.models.Attribute.DoesNotExist:
+        return "上级属性不存在"
+    up_AttributeName = attribute1.name
+    # print("down_Attribute:",down_Attribute)
+    try:
+        attribute = Attribute.objects.get(id=down_Attribute)
+    except objClass.models.Attribute.DoesNotExist:
+        return "下级属性不存在"
+
+    down_AttributeName = attribute.name
+    # print("createDef 1 ", relationId)
+    relationName = (Relation.objects.get(id=relationId)).name
+    # print("createDef 2 ")
+
+    # print("failNum:", failNum)
+    Prototype.objects.create(up_Attribute=up_Attribute, up_AttributeName=up_AttributeName, relation=relationId,
+                             relationName=relationName, down_Attribute=down_Attribute,
+                             down_AttributeName=down_AttributeName, step=step)
+
+
+def hasPrototypeObject(down_Attribute, relationId, up_Attribute, step):
+    '''
+    是否是存在
+    :param down_Attribute:
+    :param relationId:
+    :param up_Attribute:
+    :param step:
+    :return:  True 不存在 False 存在
+    '''
+    prototypeCheck = Prototype.objects.filter(up_Attribute=up_Attribute)
+    if (prototypeCheck.count() == 0):
+        print("--1--")
+        return (True,)
+    else:
+        prototypeCheckSecond = prototypeCheck.filter(relation=relationId)
+        print("--2--")
+        if (prototypeCheckSecond.count() == 0):
+            print("--3--")
+            return (True,)
+        else:
+            print("--4--")
+            prototypeCheckThirdly = prototypeCheckSecond.filter(down_Attribute=down_Attribute)
+            if (prototypeCheckThirdly.count() == 0):
+                print("--5没找到--")
+                return (True,)
+            else:
+                prototypeCheckFourth = prototypeCheckThirdly.filter(step=step)
+                print("--6--")
+                if (prototypeCheckFourth.count() == 0):
+                    print("--7--")
+                    return (True,)
+                else:
+                    return (False, prototypeCheckFourth)
+
+# def createProblem_Execute(request):
+#     problem_collectId = request.GET.get("problem_collectId")
+#     problem_collect = Problem_collect.objects.get(id=problem_collectId)
+#
+#     problemAttributeId = request.GET.get("problemAttributeId")
+#     problemAttribute = Attribute_problem.objects.get(id=problemAttributeId)
+#
+#     # executeJson = request.GET.get("executeJson") #Prototype 的id
+#     Problem_Execute.objects.create(problem_collectId=problem_collect, problemAttributeId=problemAttribute)
+
+
+# def addExecuteJson(request):
+#     '''
+#     添加方案 {"id":1,"name":"方案名称","result":1,"losesText":"失败原因"}]
+#     :param request:
+#     :return:
+#     '''
+#     id = request.GET.get("id")
+#     executeJsonStr = request.GET.get("addExecuteJson")
+#     executeJson = json.load(executeJsonStr)
+#     Problem_Execute.objects.filter(id=id).update(executeJson=executeJson)
+#     return HttpResponse("ok")
+# def create_Problem_collect(request):
+#     '''对应计划问题'''
+#     name = request.GET.get("name")
+#     description = request.GET.get("description")
+#     # 问题属性json
+#     problemJsonStr = request.GET.get("problemJson")
+#     problemJson = json.load(problemJsonStr)
+#     problemJsonNum = len(problemJson)
+#     planId = request.GET.get("planId")
+#     # objectiveId = request.GET.get("objectiveId")
+#
+#     for pJson in problemJson:
+#         # 查询属性是否存在
+#         attProblem = Attribute_problem.objects.filter(id=pJson.get("id"))
+#         if (attProblem.count() == 0):
+#             problemJson.remove(pJson)
+#         else:
+#             pJson["name"] = attProblem[0]["name"]
+#     problemJsonNumResult = len(problemJson)
+#     if problemJsonNumResult == 0:
+#         return HttpResponse("属性不存在 去添加问题属性页面 " + str(problemJsonNumResult) + "/" + str(problemJsonNum))
+#
+#     try:
+#         plan = Plan.objects.get(id=planId)
+#         objective = Objective.objects.get(id=plan.objectiveId)
+#     except objClass.models.Attribute.DoesNotExist:
+#         return HttpResponse("planId : " + planId + "不存在 或是 plan.objectiveId " + plan.objectiveId + "不存在")
+#
+#     Problem_collect.objects.create(name=name, description=description, problemJson=problemJson,
+#                                    planId=plan, objectiveId=objective)
+#     return HttpResponse("ok 进度: 已录入/需录入" + str(problemJsonNumResult) + "/" + str(problemJsonNum))
+
+
+# def add_problem_collect(request):
+#     '''
+#     添加问题属性
+#     :return:
+#     '''
+#     id = request.GET.get("id")
+#     problemJsonStr = request.GET.get("problemJson")
+#     problemJson = json.load(problemJsonStr)
+#
+#     try:
+#         proColl = Problem_collect.objects.get(id=id)
+#     except:
+#         return HttpResponse("问题不存在")
+#     prj = proColl.problemJson
+#     prj.append(problemJson)
+#     proColl.updata(problemJson=prj)
+#
+#     return HttpResponse("更新ok")
+
+# def addEnvironment(request):
+#     '''
+#     环境打分
+#     :param request:
+#     :return:
+#     '''
+#     up_Prototype = request.GET.get("up_Prototype")
+#     if (Prototype.objects.filter(id=up_Prototype).count() == 0):
+#         return HttpResponse("原型不存在")
+#
+#     down_Prototype = request.GET.get("down_Prototype")
+#     if (Prototype.objects.filter(id=down_Prototype).count() == 0):
+#         return HttpResponse("原型不存在2")
+#
+#     successNum = request.GET.get("successNum")
+#     failNum = request.GET.get("failNum")
+#
+#     # --------
+#     hasResult = judgeEnvironment(down_Prototype, up_Prototype)
+#     print("hasResult  : ", hasResult)
+#     # print("hasResult-dir  : ", dir(hasResult[1][0]))
+#     if (hasResult[0]):
+#         # 不存在 True
+#         return HttpResponse("原型不存在3")
+#     else:
+#         # 添加成功/失败 存在 False
+#         print("successNum ： ", successNum)
+#         sucR = Prototype.objects.filter(id=hasResult[1][0].id)[0]
+#         try:
+#             if (int(successNum) == 1):
+#                 num = sucR.successNum
+#                 Environment.objects.filter(id=hasResult[1][0].id).update(successNum=(int(num) + 1))
+#             elif (int(failNum == 1)):
+#                 num2 = sucR.failNum
+#                 Environment.objects.filter(id=hasResult[1][0].id).update(successNum=(int(num2) + 1))
+#             else:
+#                 return HttpResponse("统计参数错误1 successNum " + successNum + " *  failNum:" + failNum + " *")
+#         except:
+#             return HttpResponse("统计参数错误2 successNum " + successNum + " *  failNum:" + failNum + " *")
+#     return HttpResponse("ok")
+
+
+# def createEnvironment(request):
+#     '''
+#     环境
+#     :return:
+#     '''
+#     up_Prototype = request.GET.get("up_Prototype")
+#     if (Prototype.objects.filter(id=up_Prototype).count() == 0):
+#         return HttpResponse("原型不存在")
+#     up_PrototypeName = request.GET.get("up_PrototypeName")
+#     down_Prototype = request.GET.get("down_Prototype")
+#     if (Prototype.objects.filter(id=down_Prototype).count() == 0):
+#         return HttpResponse("原型不存在2")
+#     down_PrototypeName = request.GET.get("down_PrototypeName")
+#     successNum = request.GET.get("successNum")
+#     failNum = request.GET.get("failNum")
+#
+#     try:
+#
+#         if (judgeEnvironment(down_Prototype, up_Prototype)[0]):
+#             print("---failNum111-----")
+#             if (int(successNum) == 1):
+#                 Environment.objects.create(up_Prototype=up_Prototype, up_PrototypeName=up_PrototypeName,
+#                                            down_Prototype=down_Prototype, down_PrototypeName=down_PrototypeName,
+#                                            successNum=1, failNum=0)
+#                 return HttpResponse("ok")
+#             else:
+#                 print("---failNum-----")
+#                 Environment.objects.create(up_Prototype=up_Prototype, up_PrototypeName=up_PrototypeName,
+#                                            down_Prototype=down_Prototype, down_PrototypeName=down_PrototypeName,
+#                                            successNum=0, failNum=1)
+#                 return HttpResponse("ok")
+#         else:
+#             return HttpResponse("已存在")
+#     except:
+#         print("---except-----")
+#         print("fail successNum" + successNum + " failNum:" + failNum)
+#         return HttpResponse("fail successNum" + successNum + " failNum:" + failNum)
+
+
+# def judgeEnvironment(down_Prototype, up_Prototype):
+#     Env = Environment.objects.filter(up_Prototype=up_Prototype)
+#     if (Env.count() == 0):
+#         # 不存在
+#         return (True,)
+#     else:
+#         Env1 = Env.filter(down_Prototype=down_Prototype)
+#         if (Env1.count() == 0):
+#             return (True,)
+#         else:
+#             # 存在
+#             print("***----****")
+#             return (False, Env1)
+
+
+# def createExecute_plan(request):
+#     '''
+#     执行计划
+#     problemJson 来至于 problem_collect 问题收集
+#     :return:
+#     '''
+#     problemJson = request.GET.get("problemJson")
+#     planId=request.GET.get("planId")
+#
+#     plan=Plan.objects.get(id=planId)
+#     step=plan.step
+#     objectiveId = request.GET.get("objectiveId")
+#     objective=Objective.objects.get(id=objectiveId)
+#
+#     Execute_plan.objects.create(problemJson=problemJson,step=step,planId=plan,objectiveId=objective)
+#     return HttpResponse("ok")
+
+
+# def createAnalysis_plan():
+#     '''
+#     分析存入方案
+#     :return:
+#     '''
+#     pass
