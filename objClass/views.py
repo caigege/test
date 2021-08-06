@@ -3,12 +3,97 @@ import json
 
 import django
 from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render
 
 import objClass
 from objClass.models import Attribute, Relation, Prototype, ObjInit, Attribute_problem, Objective, Plan, \
     PlanStepProblem, PlanStepProblemScheme, EnvironmentProblemPrototype
 
 
+# UI
+def page(request):
+    '''
+        首页
+    '''
+    # return render(request, '../templates/model/Objective.html')
+
+    objective = Objective.objects.all()
+
+    return render(request, 'model/Objective.html', {"objective": objective})
+
+
+def planStepProblemSchemePage(request):
+    proName = request.GET.get("proname")
+    step = request.GET.get("step")
+    planName = request.GET.get("planName")
+    problemName = request.GET.get("problemName")
+    planStepProblemId = request.GET.get("planStepProblemId")
+    psp=PlanStepProblem.objects.get(id=planStepProblemId)
+
+    planStepProblemScheme=PlanStepProblemScheme.objects.filter(planStepProblemId=psp)
+
+    print(locals())
+    objId = {"step": step, "planStepProblemId": planStepProblemId, "proName": proName, "planName": planName,
+             "problemName": problemName}
+    cxt = {"objId": objId,"psps":planStepProblemScheme}
+    return render(request, 'model/planStepProblemSchemePage.html', cxt)
+
+
+def planStepProblemPage(request):
+    '''
+    计划问题页面
+    :param request:
+    :return:
+    '''
+    planId = request.GET.get("planId")
+    step = request.GET.get("step")
+    print("step", step)
+    plan = Plan.objects.get(id=planId)
+
+    planStepProblem = PlanStepProblem.objects.filter(planId=plan)
+    objId = {"id": planId, "proName": request.GET.get("proname"), "planName": request.GET.get("planName"),
+             "step": step}
+    cxt = {"objId": objId, "planStepProblem": planStepProblem, "step": step}
+    # print(locals())
+    # print(cxt["objId"]["proName"])
+    return render(request, 'model/planStepProblemPage.html', cxt)
+
+
+def planPage(request):
+    '''
+    计划
+    :param request:
+    :return:
+    '''
+    id = request.GET.get("projectId")
+    objective = Objective.objects.get(id=id)
+    plan = Plan.objects.filter(objectiveId=objective)
+    objId = {"id": id, "proName": objective.name}
+    cxt = {"objId": objId, "plan": plan}
+
+    # print(locals())
+    # print(cxt["objId"]["proName"])
+    return render(request, 'model/planPage.html', cxt)
+def analysisPage(request):
+    '''
+    分析页面
+    :param request:
+    :return:
+    '''
+
+    return render(request, 'model/analysisPage.html')
+
+
+
+def SelectObjective(request):
+    '''
+    选择项目
+    :param request:
+    :return:
+    '''
+    pass
+
+# ************************************************************
 # 1 写入数据--流程写入
 def createObjective(request):
     '''
@@ -50,10 +135,11 @@ def createPlanStepProblem(request):
     :return:
     '''
     name = request.GET.get("name")
+    step = request.GET.get("step")
     description = request.GET.get("description")
     planId = request.GET.get("planId")
     plan = Plan.objects.get(id=planId)
-    PlanStepProblem.objects.create(name=name, description=description, planId=plan)
+    PlanStepProblem.objects.create(step=step, name=name, description=description, planId=plan)
     return HttpResponse("ok")
 
 
@@ -80,7 +166,7 @@ def planStepProblemSchemeJudge(request):
     id = request.GET.get("planStepProblemSchemeId")
     result = request.GET.get("result")
     PlanStepProblemScheme.objects.filter(id=id).update(result=result)
-    return HttpResponse("ok")
+    return JsonResponse({"msg":"ok"})
 
 
 def addPlanStepProblemScheme(request):
@@ -105,10 +191,12 @@ def createPlanStepProblemScheme(request):
     :return:
     '''
     name = request.GET.get("name")
+    step = request.GET.get("step")
     description = request.GET.get("description")
     planStepProblemId = request.GET.get("planStepProblemId")
     planStepProblem = PlanStepProblem.objects.get(id=planStepProblemId)
-    PlanStepProblemScheme.objects.filter(name=name, description=description, planStepProblemId=planStepProblem)
+    PlanStepProblemScheme.objects.create(step=step, name=name, description=description,
+                                         planStepProblemId=planStepProblem)
     return HttpResponse("ok")
 
 
@@ -412,6 +500,7 @@ def getObjInit(request):
     attributeId = request.GET.get("attributeId")
     obj = ObjInit.objects.filter(attributeId__in=attributeId)
     return JsonResponse(obj)
+
 
 def checkSchemeFristStep(request):
     '''

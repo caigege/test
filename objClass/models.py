@@ -33,6 +33,7 @@ class PlanStepProblem(models.Model):
     name = models.CharField("计划问题名", max_length=100, null=True)
     description = models.TextField("计划问题简介", max_length=2000, null=True)
     planId = models.ForeignKey("Plan", on_delete=models.DO_NOTHING, verbose_name="计划id")
+    step = models.IntegerField("序号", default=1)
     problemJson = models.JSONField("问题属性json", max_length=2000, null=True)
     models.AutoField
 
@@ -45,6 +46,7 @@ class PlanStepProblemScheme(models.Model):
     description = models.TextField("计划问题简介", max_length=2000, null=True)
     planStepProblemId = models.ForeignKey("PlanStepProblem", on_delete=models.DO_NOTHING, verbose_name="计划问题id")
     result = models.IntegerField("方案结果", default=2)
+    step = models.IntegerField("序号", default=1)
     schemeJson = models.JSONField("方案json", max_length=2000, null=True)
     models.AutoField
 

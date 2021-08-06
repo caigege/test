@@ -10,8 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import pymysql
+import os
 from pathlib import Path
-
+STATIC_URL='/static/'
+ROOT_PATH = 'F:\\sthing'
+STATICFILES_DIRS = (os.path.join(ROOT_PATH,'static'),)
 pymysql.version_info = (1, 4, 13, "final", 0)
 pymysql.install_as_MySQLdb()
 

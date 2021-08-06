@@ -30,6 +30,13 @@ urlpatterns = [
     path('createRelation/', objClassView.createRelation),
     path('getAttribute_problem/', objClassView.getAttribute_problem),
     path('createPlanStepProblem/', objClassView.createPlanStepProblem),
-    path('addPlanStepProblem/', objClassView.addPlanStepProblem)
+    path('addPlanStepProblem/', objClassView.addPlanStepProblem),
+    path('page/', objClassView.page),
+    path('planPage/', objClassView.planPage),
+    path('planStepProblemPage/', objClassView.planStepProblemPage),
+    path('planStepProblemSchemePage/', objClassView.planStepProblemSchemePage),
+    path('createPlanStepProblemScheme/', objClassView.createPlanStepProblemScheme),
+    path('planStepProblemSchemeJudge/', objClassView.planStepProblemSchemeJudge),
+    path('analysisPage/', objClassView.analysisPage)
 
 ]

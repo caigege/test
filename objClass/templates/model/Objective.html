@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>创造大目标</title>
+
+    <script type="text/javascript" src="/static/js/jquery-3.5.1.min.js"></script>
+    <script type="text/javascript" src="/static/js/objJS.js"></script>
+</head>
+<body>
+<div>
+    <p>创建大目标(项目)</p>
+    <form action="/createObjective/" method="get">
+        <input type="text" name="name">
+        <input type="submit" value="提交">
+    </form>
+</div>
+<div>
+    <select id="selectlist">
+        {% for obj in objective %}
+            <option value="{{ obj.pk }}">{{ obj.name }}</option>
+
+        {% endfor %}
+    </select>
+<input value="进入项目" type="button" id="projectIn">
+</div>
+</body>
+</html>

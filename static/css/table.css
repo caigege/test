@@ -1,0 +1,127 @@
+html {
+    font-family: sans-serif;
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 10px;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+td, th {
+    padding: 0;
+}
+
+.pure-table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    empty-cells: show;
+    border: 1px solid #cbcbcb;
+}
+
+.pure-table caption {
+    color: #000;
+    font: italic 85%/1 arial, sans-serif;
+    padding: 1em 0;
+    text-align: center;
+}
+
+.pure-table td, .pure-table th {
+    border-left: 1px solid #cbcbcb;
+    border-width: 0 0 0 1px;
+    font-size: inherit;
+    margin: 0;
+    overflow: visible;
+    padding: .5em 1em;
+}
+
+.pure-table thead {
+    background-color: #e0e0e0;
+    color: #000;
+    text-align: left;
+    vertical-align: bottom;
+}
+
+.pure-table td {
+    background-color: transparent;
+}
+
+.pure-table-bordered td {
+    border-bottom: 1px solid #cbcbcb;
+}
+
+.pure-table-bordered tbody > tr:last-child > td {
+    border-bottom-width: 0;
+}
+
+#postChange {
+    position: relative;
+    top: -100px;
+    color: red;
+    width: 450px;
+    height: 250px;
+    padding: 10px;
+    border: 1px solid gray;
+    margin: 10px;
+    bottom: 150px;
+    left: 300px;
+    background-color: bisque;
+    right: 300px;
+}
+
+#postChange_user {
+    position: relative;
+    top: -300px;
+    color: cadetblue;
+    width: 850px;
+    height: 580px;
+    padding: 10px;
+    border: 1px solid gray;
+    margin: 10px;
+    bottom: 150px;
+    left: 300px;
+    background-color: bisque;
+    right: 300px;
+}
+
+button.taskSure {
+    /*background-color: #cec05869;*/
+    /*box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);*/
+
+    animation: myfirst 2s infinite;
+    -moz-animation: myfirst 2s infinite; /* Firefox */
+    -webkit-animation: myfirst 2s infinite; /* Safari and Chrome */
+    -o-animation: myfirst 2s infinite; /* Opera */
+}
+
+@keyframes myfirst {
+    0% {
+        box-shadow: 0 8px 16px 0 rgba(237, 600, 0, 1.2), 0 6px 20px 0 rgba(237, 57, 25, 0.8);
+    }
+    25% {
+        box-shadow: 0 12px 16px 0 rgba(237, 300, 97, 0.8), 0 17px 50px 0 rgba(237, 122, 17,0.6);
+    }
+    50% {
+        box-shadow: 0 12px 16px 0 rgba(237, 150, 97, 0.4), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+    }
+    75% {
+        box-shadow: 0 12px 16px 0 rgba(237, 300, 97, 0.8), 0 17px 50px 0 rgba(237, 122, 17,0.6);
+    }
+    100% {
+        box-shadow: 0 12px 16px 0 rgba(237, 600, 0, 1.2), 0 17px 50px 0 rgba(237, 57, 25, 0.8);
+    }
+}
+
+
+button.post {
+    position: relative;
+    left: 300px;
+    top: 100px;
+    right: 30px;
+    bottom: 50px;
+}
