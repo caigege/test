@@ -5,27 +5,81 @@
     <title>分析页面</title>
     <link rel="stylesheet" type="text/css" href="/static/css/table.css"/>
     <script type="text/javascript" src="/static/js/jquery-3.5.1.min.js"></script>
-    <script type="text/javascript" src="/static/js/planStepProblemSchemeJS.js"></script>
+    <script type="text/javascript" src="/static/js/analysisJS.js"></script>
 </head>
 <body>
 <div>
-    <p>问题分析</p>
-<a>问题名:</a><a>{{ problem.name }}</a><br/>
-<a>问题描述:</a><br/>
-<a></a>
-<a></a>
+    <p><b>问题分析</b></p>
+    <a id="proNameId" data-id="{{ problem.id }}" style="color:rgb(237,110,34);">问题名:</a><a>{{ problem.name }}</a><br/>
+    <a style="color:rgb(237,110,34);">问题描述:</a><a>{{ problem.description }}</a><br/>
+    <a>赋予问题属性,找出问题属性</a>:<br/><textarea rows="6" cols="40"></textarea><br/>
+    <a>查询赋予问题属性</a><br/>
+    <div>
+        <input name="searchName" type="search" placeholder="查询问题属性">
+        <button id="searchProblemAtt">搜索</button>
+        <br/>
+        <table class="pure-table pure-table-bordered">
+            <thead>
+            <tr>
+                <th>序号</th>
+                <th>名称</th>
+                <th>描述</th>
+                <th>级别</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="problemTbody">
+
+            </tbody>
+        </table>
+
+    </div>
+    <a>添加新属性</a><br/>
+    <a>赋予属性</a><br/>
+    <a>查询已有属性</a><br/>
+    {% if problem.problemJson is None %}
+        <a style="color: gray">没有属性</a>
+    {% else %}
+        <table class="pure-table pure-table-bordered">
+        <thead>
+        <tr>
+            <th>序号</th>
+            <th>名称</th>
+            <th>状态</th>
+            <th>id</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody id="problemAttTbody">
+        {% for li in problem.problemJson %}
+            <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ li.name }}</td>
+            <td data-id="{{ li.id }}">
+                {% if li.do == 2 %}
+                    <button name="set">主要属性</button>
+                    <button name="set">次要属性</button>
+                {% elif li.do == 1 %}
+                    <a>主要属性</a>
+                {% else %}
+                    <a>次要属性</a>
+                {% endif %}
+            </td>
+            <td>{{ li.id }}</td>
+                <td><button name="remove" data-id="{{ li.id  }}">移除</button></td>
+            </tr>
 
 
+        {% endfor %}
 
-
-
-
-
+        </tbody>
+    </table>
+    {% endif %}
 
 
 </div>
 <div>
-    <p>方案分析</p>
+    <p><b>方案分析</b></p>
 </div>
 
 

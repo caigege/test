@@ -28,14 +28,14 @@ def planStepProblemSchemePage(request):
     planName = request.GET.get("planName")
     problemName = request.GET.get("problemName")
     planStepProblemId = request.GET.get("planStepProblemId")
-    psp=PlanStepProblem.objects.get(id=planStepProblemId)
+    psp = PlanStepProblem.objects.get(id=planStepProblemId)
 
-    planStepProblemScheme=PlanStepProblemScheme.objects.filter(planStepProblemId=psp)
+    planStepProblemScheme = PlanStepProblemScheme.objects.filter(planStepProblemId=psp)
 
     print(locals())
     objId = {"step": step, "planStepProblemId": planStepProblemId, "proName": proName, "planName": planName,
              "problemName": problemName}
-    cxt = {"objId": objId,"psps":planStepProblemScheme}
+    cxt = {"objId": objId, "psps": planStepProblemScheme}
     return render(request, 'model/planStepProblemSchemePage.html', cxt)
 
 
@@ -74,15 +74,53 @@ def planPage(request):
     # print(locals())
     # print(cxt["objId"]["proName"])
     return render(request, 'model/planPage.html', cxt)
+
+
+def analysisPageGetProblemAtt(request):
+    '''
+    获取问题属性缓存
+    :param request:
+    :return:
+    '''
+    print("request.GET.get('planStepProblemId'))", request.GET.get("planStepProblemId"))
+    att = request.GET.get("planStepProblemId")
+    return JsonResponse(json.dumps(getProblemAtt(att), ensure_ascii=False), safe=False)
+
+
+def analysisPageRemoveAtt(request):
+    '''
+    移除属性
+    :param request:
+    :return:
+    '''
+    id = request.GET.get("id")
+    pJson = checkStepProlem(id)
+    attrId = int(request.GET.get("attrId"))
+    print("pJson : ", type(pJson),pJson,"attrId ",attrId)
+    for s in pJson:
+        # print("s",s," * ",type(s),s.get("id") == attrId)
+        print("s.get('id')",s.get("id")," * ",type(s.get("id")),s.get("id") == attrId,"attrId:",attrId,"attrIdType",type(attrId))
+        if s.get("id") == attrId:
+            pJson.remove(s)
+    PlanStepProblem.objects.filter(id=id).update(problemJson=pJson)
+    return HttpResponse(attrId)
+
+
 def analysisPage(request):
     '''
     分析页面
     :param request:
     :return:
     '''
+    planStepProblemId = request.GET.get("planStepProblemId")
 
-    return render(request, 'model/analysisPage.html')
+    psp = data_PlanStepProblem(planStepProblemId)
+    pspObject = psp[0];
 
+    # pspO = {"problem": pspObject,"pJson":pJson}
+    pspO = {"problem": pspObject}
+
+    return render(request, 'model/analysisPage.html', pspO)
 
 
 def SelectObjective(request):
@@ -92,6 +130,13 @@ def SelectObjective(request):
     :return:
     '''
     pass
+
+
+# data
+def data_PlanStepProblem(planStepProblemId):
+    # id=request.GET.get("planStepProblemId")
+    return PlanStepProblem.objects.filter(id=planStepProblemId)
+
 
 # ************************************************************
 # 1 写入数据--流程写入
@@ -146,14 +191,62 @@ def createPlanStepProblem(request):
 def addPlanStepProblem(request):
     '''
     3 - 1
-    添加问题属性 problemJson:[{"id":1,"name":"问题名称","do":1}] do:1 需要解决的属性;0不需要解决属性
+    添加问题属性 problemJson:[{"id":1,"name":"问题名称","do":1}] do:1 需要解决的属性;0不需要解决属性 2待确认
     '''
     planStepProblemId = request.GET.get("planStepProblemId")
     problemJsonStr = request.GET.get("problemJson")
-    print("problemJsonStr:" + problemJsonStr)
     problemJson = json.loads(problemJsonStr)
-    PlanStepProblem.objects.filter(id=planStepProblemId).update(problemJson=problemJson)
-    return HttpResponse("ok")
+    # 查询问题属性
+    pJson = checkStepProlem(planStepProblemId)
+    print("pJson : ", pJson, type(pJson))
+    num = 1
+    #
+    pJs = []
+    pJss = []
+    if pJson is None:
+        pJss.append(problemJson)
+        print("pJss:", pJss)
+        num = PlanStepProblem.objects.filter(id=planStepProblemId).update(problemJson=pJss)
+        return HttpResponse("ok")
+    else:
+        for pJ in pJson:
+            pJs.append(pJ.get("id"))
+    print("pJs:", pJs)
+    if problemJson.get("id") in pJs:
+        return HttpResponse("问题属性已存在")
+    else:
+        pJson.append(problemJson)
+        # 已存在的问题属性判断
+        print("pJson2 : ", pJson, type(pJson))
+        num = PlanStepProblem.objects.filter(id=planStepProblemId).update(problemJson=pJson)
+        print("num2:", num)
+
+    if num == 0:
+        return HttpResponse("fail")
+    else:
+        return HttpResponse("ok")
+
+
+def getProblemAtt(planStepProblemId):
+    '''
+    查询属性
+    :param planStepProblemId:
+    :return:
+    '''
+    pJson = checkStepProlem(planStepProblemId)
+
+    return pJson
+
+
+def checkStepProlem(planStepProblemId):
+    '''
+    查询问题 问题属性
+    :param planStepProblemId:
+    :return:
+    '''
+    planSPro = PlanStepProblem.objects.filter(id=planStepProblemId)
+    pJson = planSPro[0].problemJson
+    return pJson
 
 
 def planStepProblemSchemeJudge(request):
@@ -166,7 +259,7 @@ def planStepProblemSchemeJudge(request):
     id = request.GET.get("planStepProblemSchemeId")
     result = request.GET.get("result")
     PlanStepProblemScheme.objects.filter(id=id).update(result=result)
-    return JsonResponse({"msg":"ok"})
+    return JsonResponse({"msg": "ok"})
 
 
 def addPlanStepProblemScheme(request):
@@ -466,15 +559,19 @@ def getAttribute_problem(request):
     '''
     name = request.GET.get("name")
     attrs = Attribute_problem.objects.filter(name__contains=name)
-    js = {}
-    jss = []
-    for attr in attrs:
-        js["name"] = attr.name
-        js["id"] = attr.pk
-        jss.append(js)
-        js = {}
+    # js = {}
+    # jss = []
+    # for attr in attrs:
+    #     js["name"] = attr.name
+    #     js["id"] = attr.pk
+    #     js["description"] = attr.description
+    #     js["lv"] = attr.Attribute_problem_Lv
+    #     jss.append(js)
+    #     js = {}
+    from django.core import serializers
+    ret = serializers.serialize("python", attrs)
 
-    return HttpResponse(jss)
+    return JsonResponse(json.dumps(ret, ensure_ascii=False), safe=False)
 
 
 def analyseCreateAttribute_problem(request):

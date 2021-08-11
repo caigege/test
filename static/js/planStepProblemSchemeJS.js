@@ -13,7 +13,7 @@ $(document).ready(function () {
             }, function (data) {
                 console.log(data)
                 alert(data.msg)
-             window.location.reload()
+                window.location.reload()
             }
         )
     })
@@ -27,16 +27,29 @@ $(document).ready(function () {
                 "result": result,
             }, function (data) {
                 alert(data.msg)
-                 window.location.reload()
+                window.location.reload()
             }
         )
     })
 
     $("button[name='fx']").click(function () {
-        var searchUrl = encodeURI("/analysisPage/" )
-            // "&planStepProblemId="
-            // + planStepProblemId + "&proname=" + proname + "&planName=" + planName +
-            // "&step=" + step + "&problemName=" + problemName);
+
+        var s = $(" p")[0].innerText
+        // alert(s)
+        // 问题id
+        var planStepProblemId = $("input[name='planStepProblemId']")[0].value
+         // alert(planStepProblemId)
+        // console.log("planStepProblemId:" + planStepProblemId)
+        $.get("/analysisPageGetProblemAtt/",{"planStepProblemId":planStepProblemId},function(e){
+            console.log("****",typeof (e),e)
+            localStorage.setItem("problemAtt",e)
+        })
+        // console.log("problemAtt : ",localStorage.getItem("problemAtt"))
+
+        var searchUrl = encodeURI("/analysisPage/?&planStepProblemId=" + planStepProblemId)
+        // "&planStepProblemId="
+        // + planStepProblemId + "&proname=" + proname + "&planName=" + planName +
+        // "&step=" + step + "&problemName=" + problemName);
         window.location.href = searchUrl;
     })
 

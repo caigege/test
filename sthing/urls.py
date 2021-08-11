@@ -37,6 +37,8 @@ urlpatterns = [
     path('planStepProblemSchemePage/', objClassView.planStepProblemSchemePage),
     path('createPlanStepProblemScheme/', objClassView.createPlanStepProblemScheme),
     path('planStepProblemSchemeJudge/', objClassView.planStepProblemSchemeJudge),
-    path('analysisPage/', objClassView.analysisPage)
+    path('analysisPage/', objClassView.analysisPage),
+    path('analysisPageGetProblemAtt/', objClassView.analysisPageGetProblemAtt),
+    path('analysisPageRemoveAtt/', objClassView.analysisPageRemoveAtt)
 
 ]
