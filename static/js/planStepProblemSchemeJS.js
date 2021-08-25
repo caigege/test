@@ -33,20 +33,21 @@ $(document).ready(function () {
     })
 
     $("button[name='fx']").click(function () {
-
-        var s = $(" p")[0].innerText
+        var planStepProblemSchemeId = $(this).parent().parent().find("td").eq(0).attr("id");
+        // var s = $(" p")[0].innerText
         // alert(s)
         // 问题id
         var planStepProblemId = $("input[name='planStepProblemId']")[0].value
-         // alert(planStepProblemId)
+        // alert(planStepProblemId)
         // console.log("planStepProblemId:" + planStepProblemId)
-        $.get("/analysisPageGetProblemAtt/",{"planStepProblemId":planStepProblemId},function(e){
-            console.log("****",typeof (e),e)
-            localStorage.setItem("problemAtt",e)
+        $.get("/analysisPageGetProblemAtt/", {"planStepProblemId": planStepProblemId}, function (e) {
+            console.log("****", typeof (e), e)
+            localStorage.setItem("problemAtt", e)
         })
         // console.log("problemAtt : ",localStorage.getItem("problemAtt"))
 
-        var searchUrl = encodeURI("/analysisPage/?&planStepProblemId=" + planStepProblemId)
+        var searchUrl = encodeURI("/analysisPage/?&planStepProblemId=" + planStepProblemId + "&planStepProblemSchemeId="
+            + planStepProblemSchemeId)
         // "&planStepProblemId="
         // + planStepProblemId + "&proname=" + proname + "&planName=" + planName +
         // "&step=" + step + "&problemName=" + problemName);

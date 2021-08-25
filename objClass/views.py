@@ -2,6 +2,7 @@
 import json
 
 import django
+from django.core import serializers
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 
@@ -96,10 +97,11 @@ def analysisPageRemoveAtt(request):
     id = request.GET.get("id")
     pJson = checkStepProlem(id)
     attrId = int(request.GET.get("attrId"))
-    print("pJson : ", type(pJson),pJson,"attrId ",attrId)
+    print("pJson : ", type(pJson), pJson, "attrId ", attrId)
     for s in pJson:
         # print("s",s," * ",type(s),s.get("id") == attrId)
-        print("s.get('id')",s.get("id")," * ",type(s.get("id")),s.get("id") == attrId,"attrId:",attrId,"attrIdType",type(attrId))
+        print("s.get('id')", s.get("id"), " * ", type(s.get("id")), s.get("id") == attrId, "attrId:", attrId,
+              "attrIdType", type(attrId))
         if s.get("id") == attrId:
             pJson.remove(s)
     PlanStepProblem.objects.filter(id=id).update(problemJson=pJson)
@@ -113,13 +115,15 @@ def analysisPage(request):
     :return:
     '''
     planStepProblemId = request.GET.get("planStepProblemId")
+    planStepProblemSchemeId = request.GET.get("planStepProblemSchemeId")
 
     psp = data_PlanStepProblem(planStepProblemId)
     pspObject = psp[0];
-
     # pspO = {"problem": pspObject,"pJson":pJson}
-    pspO = {"problem": pspObject}
 
+    psps = data_planStepProblemScheme(planStepProblemSchemeId)
+    pspsObject = psps[0];
+    pspO = {"problem": pspObject, "problemScheme": pspsObject}
     return render(request, 'model/analysisPage.html', pspO)
 
 
@@ -136,6 +140,10 @@ def SelectObjective(request):
 def data_PlanStepProblem(planStepProblemId):
     # id=request.GET.get("planStepProblemId")
     return PlanStepProblem.objects.filter(id=planStepProblemId)
+
+
+def data_planStepProblemScheme(planStepProblemSchemeId):
+    return PlanStepProblemScheme.objects.filter(id=planStepProblemSchemeId)
 
 
 # ************************************************************
@@ -301,6 +309,8 @@ def createAttribute(sth):
     '''
 
     attributeLv = sth.GET.get("attributeLv")
+    if (attributeLv is None):
+        attributeLv = 1
     name = sth.GET.get("name")
     description = sth.GET.get("description")
     try:
@@ -330,12 +340,14 @@ def createRelation(sth):
     :return:
     '''
     relationLv = sth.GET.get("relationLv")
+    if (relationLv is None):
+        relationLv = 1
     name = sth.GET.get("name")
     description = sth.GET.get("description")
     try:
         Relation.objects.create(relationLv=relationLv, name=name, description=description)
     except django.db.utils.IntegrityError as e:
-        return HttpResponse("属性命名重复:" + str(e))
+        return HttpResponse("属性命名重复:" )
     return HttpResponse("ok")
 
 
@@ -521,15 +533,18 @@ def getRelation(request):
         :return:
         '''
     name = request.GET.get("name")
-    attrs = Attribute.objects.filter(name__contains=name)
-    js = {}
-    jss = []
-    for attr in attrs:
-        js["name"] = attr.name
-        js["id"] = attr.pk
-        jss.append(js)
-        js = {}
-    return HttpResponse(jss)
+    attrs = Relation.objects.filter(name__contains=name)[0:10]
+    # js = {}
+    # jss = []
+    # for attr in attrs:
+    #     js["name"] = attr.name
+    #     js["id"] = attr.pk
+    #     jss.append(js)
+    #     js = {}
+    # return HttpResponse(jss)
+    ret = serializers.serialize("python", attrs)
+
+    return JsonResponse(json.dumps(ret, ensure_ascii=False), safe=False)
 
 
 def getAttribute(request):
@@ -539,15 +554,18 @@ def getAttribute(request):
     :return:
     '''
     name = request.GET.get("name")
-    attrs = Attribute.objects.filter(name__contains=name)
-    js = {}
-    jss = []
-    for attr in attrs:
-        js["name"] = attr.name
-        js["id"] = attr.pk
-        jss.append(js)
-        js = {}
-    return HttpResponse(jss)
+    attrs = Attribute.objects.filter(name__contains=name)[0:10]
+    # js = {}
+    # jss = []
+    # for attr in attrs:
+    #     js["name"] = attr.name
+    #     js["id"] = attr.pk
+    #     jss.append(js)
+    #     js = {}
+    # return HttpResponse(jss)
+    ret = serializers.serialize("python", attrs)
+
+    return JsonResponse(json.dumps(ret, ensure_ascii=False), safe=False)
 
 
 # --Prototype--
@@ -558,7 +576,7 @@ def getAttribute_problem(request):
     :return:
     '''
     name = request.GET.get("name")
-    attrs = Attribute_problem.objects.filter(name__contains=name)
+    attrs = Attribute_problem.objects.filter(name__contains=name)[0:10]
     # js = {}
     # jss = []
     # for attr in attrs:
@@ -568,7 +586,7 @@ def getAttribute_problem(request):
     #     js["lv"] = attr.Attribute_problem_Lv
     #     jss.append(js)
     #     js = {}
-    from django.core import serializers
+
     ret = serializers.serialize("python", attrs)
 
     return JsonResponse(json.dumps(ret, ensure_ascii=False), safe=False)

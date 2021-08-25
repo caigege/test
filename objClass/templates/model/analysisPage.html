@@ -9,17 +9,21 @@
 </head>
 <body>
 <div>
-    <p><b>问题分析</b></p>
-    <a id="proNameId" data-id="{{ problem.id }}" style="color:rgb(237,110,34);">问题名:</a><a>{{ problem.name }}</a><br/>
-    <a style="color:rgb(237,110,34);">问题描述:</a><a>{{ problem.description }}</a><br/>
-    <a>赋予问题属性,找出问题属性</a>:<br/><textarea rows="6" cols="40"></textarea><br/>
-    <a>查询赋予问题属性</a><br/>
+    <p><a class="bt1"><b>问题分析</b></a></p>
+    <a class="desc1" id="proNameId" data-id="{{ problem.id }}"
+       style="color:rgb(237,110,34);">问题名:</a><a>{{ problem.name }}</a><br/>
+    <a class="desc1">问题描述:</a><a>{{ problem.description }}</a><br/>
+    <a class="desc2">赋予问题属性,找出问题属性</a>:<br/><textarea rows="6" cols="40"></textarea><br/>
+    <a class="bt2">查询赋予问题属性</a><br/>
     <div>
         <input name="searchName" type="search" placeholder="查询问题属性">
         <button id="searchProblemAtt">搜索</button>
         <br/>
         <table class="pure-table pure-table-bordered">
             <thead>
+            <tr bgcolor="#adff2f" align="center">
+                <th colspan="5"> 问题属性</th>
+            </tr>
             <tr>
                 <th>序号</th>
                 <th>名称</th>
@@ -34,52 +38,125 @@
         </table>
 
     </div>
-    <a>添加新属性</a><br/>
-    <a>赋予属性</a><br/>
-    <a>查询已有属性</a><br/>
+    <a class="bt2">添加新属性</a><br/>
+    <a class="desc1">名称:</a><input type="text" name="name" class="addPA"><br>
+    <a class="desc1">描述:</a><input type="text" name="description" class="addPA"><br>
+    <input id="PAsubmit" type="submit" value="提交"><br>
+
+
+    <!--a>赋予属性</--a><br/-->
+    <a class="bt2">查询已有属性</a><br/>
     {% if problem.problemJson is None %}
         <a style="color: gray">没有属性</a>
     {% else %}
         <table class="pure-table pure-table-bordered">
-        <thead>
-        <tr>
-            <th>序号</th>
-            <th>名称</th>
-            <th>状态</th>
-            <th>id</th>
-            <th>操作</th>
-        </tr>
-        </thead>
-        <tbody id="problemAttTbody">
-        {% for li in problem.problemJson %}
+            <thead>
             <tr>
-            <td>{{ forloop.counter }}</td>
-            <td>{{ li.name }}</td>
-            <td data-id="{{ li.id }}">
-                {% if li.do == 2 %}
-                    <button name="set">主要属性</button>
-                    <button name="set">次要属性</button>
-                {% elif li.do == 1 %}
-                    <a>主要属性</a>
-                {% else %}
-                    <a>次要属性</a>
-                {% endif %}
-            </td>
-            <td>{{ li.id }}</td>
-                <td><button name="remove" data-id="{{ li.id  }}">移除</button></td>
+                <th>序号</th>
+                <th>名称</th>
+                <th>状态</th>
+                <th>id</th>
+                <th>操作</th>
             </tr>
+            </thead>
+            <tbody id="problemAttTbody">
+            {% for li in problem.problemJson %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ li.name }}</td>
+                    <td data-id="{{ li.id }}">
+                        {% if li.do == 2 %}
+                            <button name="set">主要属性</button>
+                            <button name="set">次要属性</button>
+                        {% elif li.do == 1 %}
+                            <a>主要属性</a>
+                        {% else %}
+                            <a>次要属性</a>
+                        {% endif %}
+                    </td>
+                    <td>{{ li.id }}</td>
+                    <td>
+                        <button name="remove" data-id="{{ li.id }}">移除</button>
+                    </td>
+                </tr>
 
 
-        {% endfor %}
+            {% endfor %}
 
-        </tbody>
-    </table>
+            </tbody>
+        </table>
     {% endif %}
 
 
 </div>
 <div>
-    <p><b>方案分析</b></p>
+    <p><a class="bt1"><b>方案分析</b></a></p>
+    <a class="desc1" id="proNameSchemeId" data-id="{{ problemScheme.id }}">方案名:</a><a>{{ problemScheme.name }}</a><br/>
+    <a class="desc1">方案描述:</a><a>{{ problemScheme.description }}</a><br/>
+    <a class="desc2">赋予问题属性,找出问题属性</a>:<br/><textarea rows="6" cols="40"></textarea><br/>
+   <div style="border: 2px solid #a5fff7">
+    <a class="desc1">对象上级属性:&nbsp;&nbsp;</a><input type="text" name="upAtrr" readonly="readonly" data-id=""><br>
+    <a class="desc1">对象下级属性:&nbsp;&nbsp;</a><input type="text" name="downAtrr" readonly="readonly" data-id=""><br>
+    <a class="desc1">关&nbsp;&nbsp;系&nbsp;&nbsp;&nbsp;属&nbsp;&nbsp;性:&nbsp;&nbsp;</a><input type="text" name="relationAtrr" readonly="readonly" data-id=""><br>
+    <input type="submit" value="提交">
+   </div>
+    <a class="bt2">查询属性</a><br>
+    <input name="searchNameAtt" type="search" placeholder="查询属性">
+        <button id="searchAtt">搜索</button><br>
+     <table class="pure-table pure-table-bordered">
+            <thead>
+            <tr bgcolor="#adff2f" align="center">
+                <th colspan="5"> 方案属性</th>
+            </tr>
+            <tr>
+                <th>序号</th>
+                <th>名称</th>
+                <th>描述</th>
+                <th>级别</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="attTbody">
+
+            </tbody>
+        </table>
+    <a class="bt2">添加属性</a><br>
+    <div>
+        <a class="desc1">方案属性名称:</a><input id="schemeName"><br>
+        <a class="desc1">方案描述:</a><input id="schemeDesc"><br>
+        <input type="submit" value="提交" id="btnScheme">
+
+    </div>
+
+
+   <a class="bt2">查询关系属性</a><br>
+    <input name="searchNameRe" type="search" placeholder="查询关系属性">
+        <button id="searchRelation">搜索</button><br>
+     <table class="pure-table pure-table-bordered">
+            <thead>
+            <tr bgcolor="#adff2f" align="center">
+                <th colspan="5"> 关系属性</th>
+            </tr>
+            <tr>
+                <th>序号</th>
+                <th>名称</th>
+                <th>描述</th>
+                <th>级别</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="relationTbody">
+
+            </tbody>
+        </table>
+   <a class="bt2">添加关系属性</a><br>
+ <div>
+     <a class="desc1">关系属性名称:</a><input id="reName"><br>
+        <a class="desc1">关系描述:</a><input id="reDesc"><br>
+        <input type="submit" value="提交" id="btnRe">
+
+    </div>
+
 </div>
 
 

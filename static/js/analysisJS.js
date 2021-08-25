@@ -11,7 +11,7 @@ $(document).ready(function () {
     var atrr = []
 
     function getAtr() {
-         atrr = [];
+        atrr = [];
         let atts = localStorage.getItem("problemAtt")
         let atrs = JSON.parse(atts)
         for (let atr = 0; atr < atrs.length; atr++) {
@@ -24,17 +24,146 @@ $(document).ready(function () {
 
     atrr = getAtr();
     console.log(atrr)
+    $("#attTbody").on("click", "button[name='sureAtt']", function () {
+        //    添加上级属性
+        var attId = $(this).parent().parent().find("td").eq(0).data("id");
+        var attName = $(this).parent().parent().find("td").eq(1)[0].innerHTML;
+        $("input[name='upAtrr']").val(attName);
+        $("input[name='upAtrr']").data("id",attId);
 
+    })
+     $("#relationTbody").on("click", "button[name='sureRe']", function () {
+        //    添加关系属性
+        var attId = $(this).parent().parent().find("td").eq(0).data("id");
+        var attName = $(this).parent().parent().find("td").eq(1)[0].innerHTML;
+        $("input[name='relationAtrr']").val(attName);
+        $("input[name='relationAtrr']").data("id",attId);
 
-    $("#searchProblemAtt").click(function () {
-        atrr = getAtr();
-        $.get("/getAttribute_problem/", {"name": name}, function (e) {
+    })
+
+     $("#attTbody").on("click", "button[name='sureAttD']", function () {
+        //    添加下级属性
+        var attId = $(this).parent().parent().find("td").eq(0).data("id");
+        var attName = $(this).parent().parent().find("td").eq(1)[0].innerHTML;
+        $("input[name='downAtrr']").val(attName);
+        $("input[name='downAtrr']").data("id",attId);
+
+    })
+      $("#btnRe").click(function () {
+        //  关系
+        let reName = $("#reName")[0].value;
+        let reDesc = $("#reDesc")[0].value;
+        if (reName.trim().length == 0 || reDesc.trim().length < 3) {
+            return alert("名称为空 或是 描述过短（3个字)")
+        }
+        $.get("/createRelation/", {"name": reName, "description": reDesc}, function (e) {
+            alert(e)
+        })
+
+    })
+
+    $("#btnScheme").click(function () {
+        let schemeName = $("#schemeName")[0].value;
+        let schemeDesc = $("#schemeDesc")[0].value;
+        if (schemeName.trim().length == 0 || schemeDesc.trim().length < 3) {
+            return alert("名称为空 或是 描述过短（3个字)")
+        }
+        $.get("/createAttribute/", {"name": schemeName, "description": schemeDesc}, function (e) {
+            alert(e)
+        })
+
+    })
+    $("#searchRelation").click(function () {
+        $("#relationTbody").empty();
+        name = $("input[name='searchNameRe']")[0].value;
+        $.get("/getRelation/", {"name": name}, function (e) {
+            console.log("pppp", e)
             // alert(typeof (e))
-            console.log(e)
             var eJson = JSON.parse(e);
             // alert(eJson.length)
             var xunh = 1
-            $("#problemTbody").empty()
+            for (var i in eJson) {
+                var ajson = eJson[i]
+                // console.log("i:",i," pk: ",ajson.pk," r- ",ajson.pk in atrr," y- ",atrr)
+                var butOwrite = "<button name='sureRe'>关系属性添加</button>"
+                // if (atrr.indexOf(ajson.pk) != -1) {
+                //     butOwrite = "<a style='color:rgb(255,143,16);'>已存在</a>"
+                // }
+
+                $("#relationTbody").append(
+                    "<tr>" +
+                    "<td data-id='" + ajson.pk + "'>" + xunh + "</td>" +
+                    "<td>" + ajson.fields.name + "</td>" +
+                    "<td>" + ajson.fields.description + "</td>" +
+                    "<td>" + ajson.fields.relationLv + "</td>" +
+                    "<td>" + butOwrite + "</td>" +
+                    "</tr>"
+                )
+
+                xunh = xunh + 1;
+
+            }
+        })
+    })
+    $("#searchAtt").click(function () {
+        $("#attTbody").empty();
+        name = $("input[name='searchNameAtt']")[0].value;
+        $.get("/getAttribute/", {"name": name}, function (e) {
+            console.log("pppp", e)
+            // alert(typeof (e))
+            var eJson = JSON.parse(e);
+            // alert(eJson.length)
+            var xunh = 1
+            for (var i in eJson) {
+                var ajson = eJson[i]
+                // console.log("i:",i," pk: ",ajson.pk," r- ",ajson.pk in atrr," y- ",atrr)
+                var butOwrite = "<button name='sureAtt'>上级属性添加</button><button name='sureAttD'>下级属性添加</button>"
+                // if (atrr.indexOf(ajson.pk) != -1) {
+                //     butOwrite = "<a style='color:rgb(255,143,16);'>已存在</a>"
+                // }
+
+                $("#attTbody").append(
+                    "<tr>" +
+                    "<td data-id='" + ajson.pk + "'>" + xunh + "</td>" +
+                    "<td>" + ajson.fields.name + "</td>" +
+                    "<td>" + ajson.fields.description + "</td>" +
+                    "<td>" + ajson.fields.attributeLv + "</td>" +
+                    "<td>" + butOwrite + "</td>" +
+                    "</tr>"
+                )
+
+                xunh = xunh + 1;
+
+            }
+        })
+    })
+
+    $("#PAsubmit").click(function () {
+        // let  name=$(".addPA ").find("input[name='name']").value
+        let name = $("input[name='name']")[0].value
+        let description = $("input[name='description']")[0].value
+        if (name.trim().length == 0 || description.trim().length < 3) {
+            return alert("名称为空 或是 描述过短（3个字)")
+        }
+        $.get('/createAttribute_problem/', {"name": name, "description": description}, function (e) {
+            // alert(e)
+            $("input[name='name']")[0].value = "";
+            $("input[name='description']")[0].value = "";
+        })
+        // console.log("name:",name)
+
+    })
+    $("#searchProblemAtt").click(function () {
+        atrr = getAtr();
+        name = $("input[name='searchName']")[0].value;
+        $("#problemTbody").empty()
+        $.get("/getAttribute_problem/", {"name": name}, function (e) {
+            // alert(typeof (e))
+            console.log("searchProblemAtt:", e)
+            var eJson = JSON.parse(e);
+            // alert(eJson.length)
+            var xunh = 1
+
 
             for (var i in eJson) {
 
@@ -106,9 +235,9 @@ $(document).ready(function () {
                 }
             }
             ;
-            console.log("****:",atrs)
+            console.log("****:", atrs)
             localStorage.setItem("problemAtt", JSON.stringify(atrs));
-             console.log("*3******:", localStorage.getItem("problemAtt"));
+            console.log("*3******:", localStorage.getItem("problemAtt"));
             window.location.reload();
         })
 
