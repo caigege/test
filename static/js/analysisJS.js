@@ -24,32 +24,103 @@ $(document).ready(function () {
 
     atrr = getAtr();
     console.log(atrr)
+    $("#prototypeBtn").click(function () {
+        var up_Attribute = $("input[name='upAtrr']").data("id")
+        var down_Attribute = $("input[name='downAtrr']").data("id")
+        var relation = $("input[name='relationAtrr']").data("id")
+        var step = $("input[name='stepAtrr']")[0].value
+        var name = $("input[name='prototypeName']")[0].value
+        // console.log("name:",name,"up_Attribute:",up_Attribute,"down_Attribute:",down_Attribute,"relation:",relation,"step:",step)
+        $.get("/createPrototype/", {
+            "name": name,
+            "up_Attribute": up_Attribute,
+            "down_Attribute": down_Attribute,
+            "relation": relation,
+            "step": step
+        }, function (e) {
+            alert(e)
+
+        })
+
+    })
+    $("#initName").change(function () {
+        $("#attrDiv").find("ul").empty()
+        $("#attrDiv").attr("style", "display:none;");
+    })
+    $("#initBtn").click(function () {
+        var name = $("#initName")[0].value
+        var description = $("#initDesc")[0].value
+        if ($("input[name='initAtrr']")[0].value.length <= 0 || name.trim().length <= 0
+            || description.trim().length <= 0) {
+            return alert("不能为空")
+        }
+        var attributeId = {"id": $("input[name='initAtrr']").data("id"), "name": $("input[name='initAtrr']")[0].value}
+        // console.log("attributeId",attributeId)
+        // console.log("JSONattributeId",attributeId)
+        $.get("/createObjInit/", {
+            "name": name, "description": description,
+            "attributeId": "[" + JSON.stringify(attributeId) + "]"
+        }, function (e) {
+            // alert(e, typeof(e))
+            if (e == "属性已存在") {
+                alert(e)
+                $.get("/getObjInit/", {"name": name}, function (ea) {
+
+                    $("#attrDiv").attr("style", "display:block;");
+                    var eJsona = JSON.parse(ea);
+                    $("#attrDiv").find("ul").empty();
+                    for (var ia in eJsona) {
+                        $("#attrDiv").find("ul").append("<li>" + eJsona[ia].name + "</li>")
+                    }
+                    return
+                })
+            } else {
+                $("#attrDiv").attr("style", "display:block;");
+                var eJson = JSON.parse(e);
+                $("#attrDiv").find("ul").empty();
+                for (var i in eJson) {
+                    $("#attrDiv").find("ul").append("<li>" + eJson[i].name + "</li>")
+                }
+            }
+        })
+
+    })
     $("#attTbody").on("click", "button[name='sureAtt']", function () {
         //    添加上级属性
         var attId = $(this).parent().parent().find("td").eq(0).data("id");
         var attName = $(this).parent().parent().find("td").eq(1)[0].innerHTML;
         $("input[name='upAtrr']").val(attName);
-        $("input[name='upAtrr']").data("id",attId);
+        $("input[name='upAtrr']").data("id", attId);
 
     })
-     $("#relationTbody").on("click", "button[name='sureRe']", function () {
+    $("#relationTbody").on("click", "button[name='sureRe']", function () {
         //    添加关系属性
         var attId = $(this).parent().parent().find("td").eq(0).data("id");
         var attName = $(this).parent().parent().find("td").eq(1)[0].innerHTML;
         $("input[name='relationAtrr']").val(attName);
-        $("input[name='relationAtrr']").data("id",attId);
+        $("input[name='relationAtrr']").data("id", attId);
 
     })
 
-     $("#attTbody").on("click", "button[name='sureAttD']", function () {
+    $("#attTbody").on("click", "button[name='sureAttD']", function () {
         //    添加下级属性
         var attId = $(this).parent().parent().find("td").eq(0).data("id");
         var attName = $(this).parent().parent().find("td").eq(1)[0].innerHTML;
         $("input[name='downAtrr']").val(attName);
-        $("input[name='downAtrr']").data("id",attId);
+        $("input[name='downAtrr']").data("id", attId);
 
     })
-      $("#btnRe").click(function () {
+    $("#attTbody").on("click", "button[name='surePrototype']", function () {
+        //    添加下级属性
+        var attId = $(this).parent().parent().find("td").eq(0).data("id");
+        var attName = $(this).parent().parent().find("td").eq(1)[0].innerHTML;
+        $("input[name='initAtrr']").val(attName);
+        $("input[name='initAtrr']").data("id", attId);
+
+    })
+
+
+    $("#btnRe").click(function () {
         //  关系
         let reName = $("#reName")[0].value;
         let reDesc = $("#reDesc")[0].value;
@@ -85,7 +156,7 @@ $(document).ready(function () {
             for (var i in eJson) {
                 var ajson = eJson[i]
                 // console.log("i:",i," pk: ",ajson.pk," r- ",ajson.pk in atrr," y- ",atrr)
-                var butOwrite = "<button name='sureRe'>关系属性添加</button>"
+                var butOwrite = "<button name='sureRe'>添加</button>"
                 // if (atrr.indexOf(ajson.pk) != -1) {
                 //     butOwrite = "<a style='color:rgb(255,143,16);'>已存在</a>"
                 // }
@@ -117,7 +188,9 @@ $(document).ready(function () {
             for (var i in eJson) {
                 var ajson = eJson[i]
                 // console.log("i:",i," pk: ",ajson.pk," r- ",ajson.pk in atrr," y- ",atrr)
-                var butOwrite = "<button name='sureAtt'>上级属性添加</button><button name='sureAttD'>下级属性添加</button>"
+                var butOwrite = "<button name='sureAtt'>上级</button>" +
+                    "<button name='sureAttD'>下级</button>" +
+                    "<button name='surePrototype'>实例</button>"
                 // if (atrr.indexOf(ajson.pk) != -1) {
                 //     butOwrite = "<a style='color:rgb(255,143,16);'>已存在</a>"
                 // }

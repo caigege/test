@@ -41,6 +41,7 @@ urlpatterns = [
     path('analysisPageGetProblemAtt/', objClassView.analysisPageGetProblemAtt),
     path('analysisPageRemoveAtt/', objClassView.analysisPageRemoveAtt),
     path('getAttribute/', objClassView.getAttribute),
-    path('getRelation/', objClassView.getRelation)
+    path('getRelation/', objClassView.getRelation),
+    path('getObjInit/', objClassView.getObjInit)
 
 ]

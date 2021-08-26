@@ -347,7 +347,7 @@ def createRelation(sth):
     try:
         Relation.objects.create(relationLv=relationLv, name=name, description=description)
     except django.db.utils.IntegrityError as e:
-        return HttpResponse("属性命名重复:" )
+        return HttpResponse("属性命名重复:")
     return HttpResponse("ok")
 
 
@@ -362,8 +362,10 @@ def createPrototype(request):
     relationId = request.GET.get("relation")
     down_Attribute = request.GET.get("down_Attribute")
     step = request.GET.get("step")
+    name = request.GET.get("name")
+
     if (hasPrototypeObject(down_Attribute, relationId, up_Attribute, step)[0]):
-        cdf = createDef(down_Attribute, relationId, step, up_Attribute)
+        cdf = createDef(name, down_Attribute, relationId, step, up_Attribute)
         print("cdf:", cdf)
         if (not cdf):
             return HttpResponse("ok")
@@ -460,7 +462,6 @@ def createEnvironmentProblemPrototype(request):
                                                    up_Prototype=up_Prototype, up_PrototypeName=up_PrototypeName)
     return HttpResponse("ok")
 
-
 def createObjInit(request):
     '''
     属性实例
@@ -469,17 +470,33 @@ def createObjInit(request):
     name = request.GET.get("name")
     description = request.GET.get("description")
     attributeId = request.GET.get("attributeId")
-    print("attributeId : ", attributeId)
+    print("attributeId : ", attributeId, type(attributeId))
     attributeIdJson = json.loads(attributeId)
+
     for i in attributeIdJson:
         Id = i.get("id")
         if (Attribute.objects.filter(id=Id).count() == 0):
             return HttpResponse("属性" + str(Id) + "不存在")
     print("attributeId : ", attributeIdJson)
-    try:
+    objInitObject = ObjInit.objects.filter(name=name)
+    if objInitObject.count() == 0:
+
         ObjInit.objects.create(name=name, description=description, attributeId=attributeIdJson)
-    except django.db.utils.IntegrityError as e:
-        return HttpResponse("命名name重复 : " + str(e))
+
+    else:
+        attributeIds = objInitObject[0].attributeId
+        for attr in attributeIds:
+            print("attr:", attr)
+            if Id == attr.get("id"):
+                return HttpResponse("属性已存在")
+            # else:
+            #     print("attributeIdJson[0]:", attributeIdJson[0], type(attributeIdJson[0]))
+            #     print("attributeIds1:", attributeIds)
+        attributeIds.append(attributeIdJson[0])
+        # print("attributeIds:", attributeIds)
+        objInitObject.update(attributeId=attributeIds)
+        return JsonResponse(json.dumps(attributeIds, ensure_ascii=False), safe=False)
+
     return HttpResponse("ok")
 
 
@@ -612,9 +629,10 @@ def getObjInit(request):
     :param request:
     :return:
     '''
-    attributeId = request.GET.get("attributeId")
-    obj = ObjInit.objects.filter(attributeId__in=attributeId)
-    return JsonResponse(obj)
+    name = request.GET.get("name")
+    obj = ObjInit.objects.filter(name=name)
+    attributeIds = obj[0].attributeId
+    return JsonResponse(json.dumps(attributeIds, ensure_ascii=False), safe=False)
 
 
 def checkSchemeFristStep(request):
@@ -658,7 +676,7 @@ def checkScheme(request):
     return HttpResponse(EnvirScheme)
 
 
-def createDef(down_Attribute, relationId, step, up_Attribute):
+def createDef(name, down_Attribute, relationId, step, up_Attribute):
     try:
         attribute1 = Attribute.objects.get(id=up_Attribute)
     except objClass.models.Attribute.DoesNotExist:
@@ -669,6 +687,11 @@ def createDef(down_Attribute, relationId, step, up_Attribute):
         attribute = Attribute.objects.get(id=down_Attribute)
     except objClass.models.Attribute.DoesNotExist:
         return "下级属性不存在"
+    try:
+        Prototype.objects.get(name=name)
+        return "名称已存在"
+    except:
+        pass
 
     down_AttributeName = attribute.name
     # print("createDef 1 ", relationId)
@@ -676,7 +699,8 @@ def createDef(down_Attribute, relationId, step, up_Attribute):
     # print("createDef 2 ")
 
     # print("failNum:", failNum)
-    Prototype.objects.create(up_Attribute=up_Attribute, up_AttributeName=up_AttributeName, relation=relationId,
+    Prototype.objects.create(name=name, up_Attribute=up_Attribute, up_AttributeName=up_AttributeName,
+                             relation=relationId,
                              relationName=relationName, down_Attribute=down_Attribute,
                              down_AttributeName=down_AttributeName, step=step)
 
