@@ -196,6 +196,20 @@ def createPlanStepProblem(request):
     return HttpResponse("ok")
 
 
+def addPlanStepProblemDown(request):
+    id = request.GET.get("id")
+    jsonDown = request.GET.get("jsonDown")
+    print("jsonDown**",jsonDown)
+    PlanStepProblem.objects.filter(id=id).update(down_planStepProblemId=json.loads(jsonDown))
+    return HttpResponse("ok")
+
+def addPlanStepProblemUp(request):
+    id=request.GET.get("id")
+    jsonUp=request.GET.get("jsonUp")
+
+    PlanStepProblem.objects.filter(id=id).update(up_planStepProblemId=json.loads(jsonUp))
+    return HttpResponse("ok")
+
 def addPlanStepProblem(request):
     '''
     3 - 1

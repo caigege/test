@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>问题页面</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/table.css"/>
     <script type="text/javascript" src="/static/js/jquery-3.5.1.min.js"></script>
     <script type="text/javascript" src="/static/js/planStepProblemJS.js"></script>
 </head>
@@ -19,15 +20,78 @@
         <input type="submit" value="提交">
     </form>
 </div>
-<div>
-问题列表
-    <select id="selectlist">
-        {% for pSP in planStepProblem %}
-            <option value="{{ pSP.pk }}">{{ pSP.name }}</option>
-        {% endfor %}
-    </select>
 
-    <input value="进入方案" type="button" id="planStepProblemSchemeIn">
+<div>
+    <table id="taskInfoTable" class="pure-table pure-table-bordered">
+        <thead>
+        <tr bgcolor="#adff2f" align="center">
+            <th colspan="8"> 问题列表</th>
+        </tr>
+        <tr>
+            <td>序号</td>
+            <td>问题名</td>
+            <td>问题表述</td>
+            <td>计划步骤</td>
+            <td>问题属性</td>
+            <td>前置问题</td>
+            <td>后置问题</td>
+            <td>操作</td>
+        </tr>
+        </thead>
+        <tbody>
+        {% for li in planStepProblem %}
+            <tr>
+            <td data-id="{{ li.pk }}">{{ forloop.counter }}</td>
+            <td>{{ li.name }}</td>
+            <td style="font-size: small"><textarea>{{ li.description }}</textarea></td>
+            <td>{{ li.step }}</td>
+            <td>
+                {% if li.problemJson %}
+                    {% for a in li.problemJson %}
+                        <a style="background-color: cornflowerblue"> &nbsp;{{ a.name }}&nbsp;</a>
+                    {% endfor %}
+                {% else %}
+                    没有属性
+                {% endif %}
+            </td>
+            <td>
+                {% if li.up_planStepProblemId %}
+                    {% for b in li.up_planStepProblemId %}
+                        <a style="background-color: cornflowerblue" data-id="{{ b.id }}">
+                            &nbsp;{{ b.name }}&nbsp;</a>
+                    {% endfor %}
+                {% else %}
+                    <a>暂无</a><br>
+                    <select name="selectlist">
+                        {% for pSP in planStepProblem %}
+                            <option value="{{ pSP.pk }}">{{ pSP.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="button"  name="btnAddUp" value="添加">
+                {% endif %}
+            </td>
+            <td>
+                {% if li.down_planStepProblemId %}
+                    {% for c in li.down_planStepProblemId %}
+                        <a style="background-color: cornflowerblue" data-id="{{ c.id }}">
+                            &nbsp;{{ c.name }}&nbsp;</a>
+                    {% endfor %}
+                {% else %}
+                    <a>暂无</a><br>
+                    <select name="selectlist">
+                        {% for pSP in planStepProblem %}
+                            <option value="{{ pSP.pk }}">{{ pSP.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="button"  name="btnAddDown" value="添加">
+                {% endif %}
+            </td>
+            <td>
+                <input value="进入方案" type="button" name="planStepProblemSchemeIn">
+            </td>
+        {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 

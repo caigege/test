@@ -35,6 +35,9 @@ class PlanStepProblem(models.Model):
     planId = models.ForeignKey("Plan", on_delete=models.DO_NOTHING, verbose_name="计划id")
     step = models.IntegerField("序号", default=1)
     problemJson = models.JSONField("问题属性json", max_length=2000, null=True)
+    up_planStepProblemId=models.JSONField("上个问题id",null=True)
+    down_planStepProblemId=models.JSONField("下个问题id",null=True)
+
     models.AutoField
 
 

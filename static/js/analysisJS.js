@@ -6,7 +6,7 @@ $(document).ready(function () {
 
 
     // console.log("*1*",atrs.length,typeof (atrs),atrs)
-    console.log("*2******:", localStorage.getItem("problemAtt"));
+    // console.log("*2******:", localStorage.getItem("problemAtt"));
     var atrs = JSON.parse(localStorage.getItem("problemAtt"))
     var atrr = []
 
@@ -16,14 +16,14 @@ $(document).ready(function () {
         let atrs = JSON.parse(atts)
         for (let atr = 0; atr < atrs.length; atr++) {
 
-            console.log(atrs[atr])
+            // console.log(atrs[atr])
             atrr.push(atrs[atr].id)
         }
         return atrr;
     }
 
     atrr = getAtr();
-    console.log(atrr)
+    // console.log(atrr)
     $("#prototypeBtn").click(function () {
         var up_Attribute = $("input[name='upAtrr']").data("id")
         var down_Attribute = $("input[name='downAtrr']").data("id")
@@ -232,7 +232,7 @@ $(document).ready(function () {
         $("#problemTbody").empty()
         $.get("/getAttribute_problem/", {"name": name}, function (e) {
             // alert(typeof (e))
-            console.log("searchProblemAtt:", e)
+            // console.log("searchProblemAtt:", e)
             var eJson = JSON.parse(e);
             // alert(eJson.length)
             var xunh = 1
@@ -300,17 +300,17 @@ $(document).ready(function () {
         var attrId = $(this).data("id")
         atrr = getAtr();
         $.get("/analysisPageRemoveAtt/", {"id": problemId, "attrId": attrId}, function (e) {
-            console.log("e；", e);
+            // console.log("e；", e);
             for (atr in atrs) {
-                console.log("this atr :" + atr)
+                // console.log("this atr :" + atr)
                 if (e == atrs[atr].id) {
                     atrs.splice(atr, 1)
                 }
             }
             ;
-            console.log("****:", atrs)
+            // console.log("****:", atrs)
             localStorage.setItem("problemAtt", JSON.stringify(atrs));
-            console.log("*3******:", localStorage.getItem("problemAtt"));
+            // console.log("*3******:", localStorage.getItem("problemAtt"));
             window.location.reload();
         })
 

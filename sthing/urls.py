@@ -42,6 +42,8 @@ urlpatterns = [
     path('analysisPageRemoveAtt/', objClassView.analysisPageRemoveAtt),
     path('getAttribute/', objClassView.getAttribute),
     path('getRelation/', objClassView.getRelation),
-    path('getObjInit/', objClassView.getObjInit)
+    path('getObjInit/', objClassView.getObjInit),
+    path('addPlanStepProblemUp/', objClassView.addPlanStepProblemUp),
+    path('addPlanStepProblemDown/', objClassView.addPlanStepProblemDown)
 
 ]
