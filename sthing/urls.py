@@ -44,6 +44,7 @@ urlpatterns = [
     path('getRelation/', objClassView.getRelation),
     path('getObjInit/', objClassView.getObjInit),
     path('addPlanStepProblemUp/', objClassView.addPlanStepProblemUp),
-    path('addPlanStepProblemDown/', objClassView.addPlanStepProblemDown)
+    path('addPlanStepProblemDown/', objClassView.addPlanStepProblemDown),
+    path('getHadPrototype/', objClassView.getHadPrototype)
 
 ]

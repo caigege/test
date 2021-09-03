@@ -139,6 +139,9 @@ button.post {
     color: #ED6E22;
 
 }
+.divClass{
+    border: 2px solid #a5fff7
+}
 input[name='describ']{
     width: 300px;
     height: 100px;

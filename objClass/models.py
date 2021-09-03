@@ -93,7 +93,7 @@ class Prototype(models.Model):
     '''
     2.4原型:上级属性--关系-->下级属性 记录本步骤的失败/成功 Attribute  Relation
     '''
-    name = models.CharField("原型名", max_length=100, null=True)
+    name = models.CharField("原型名", max_length=100, null=True,unique=True)
     up_Attribute = models.IntegerField("上个属性id")
     up_AttributeName = models.CharField("上个属性名称", max_length=100, null=True)
     down_Attribute = models.IntegerField("下个属性id")

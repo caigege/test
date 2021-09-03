@@ -15,7 +15,7 @@
     <a class="desc1">问题描述:</a><a>{{ problem.description }}</a><br/>
     <a class="desc2">赋予问题属性,找出问题属性</a>:<br/><textarea rows="6" cols="40"></textarea><br/>
     <a class="bt2">查询赋予问题属性</a><br/>
-    <div>
+    <div class="divClass">
         <input name="searchName" type="search" placeholder="查询问题属性">
         <button id="searchProblemAtt">搜索</button>
         <br/>
@@ -86,12 +86,13 @@
 
 
 </div>
+<a>-----------------------------------------------------------------------------------------------------------------</a>
 <div>
     <p><a class="bt1"><b>方案分析</b></a></p>
     <a class="desc1" id="proNameSchemeId" data-id="{{ problemScheme.id }}">方案名:</a><a>{{ problemScheme.name }}</a><br/>
     <a class="desc1">方案描述:</a><a>{{ problemScheme.description }}</a><br/>
     <a class="desc2">赋予问题属性,找出问题属性</a>:<br/><textarea rows="6" cols="40"></textarea><br/>
-    <div>
+    <div class="divClass">
         <a class="bt2">方案对象实例</a><br>
         <a class="desc1">实例名称:</a><input id="initName"><br>
         <a class="desc1">实例描述:</a><textarea id="initDesc" name="describ"></textarea><br>
@@ -106,9 +107,9 @@
     </div>
 
 
-    <div style="border: 2px solid #a5fff7">
+    <div class="divClass">
 
-        <a>原型</a><br>
+        <a class="bt2">原型</a><br>
 
         <a class="desc1">原型名:&nbsp;&nbsp;</a><input type="text" name="prototypeName"><br>
         <a class="desc1">对象上级属性:&nbsp;&nbsp;</a><input type="text" name="upAtrr" readonly="readonly" data-id=""><br>
@@ -121,7 +122,37 @@
             type="text" name="stepAtrr" readonly="readonly" value="{{ problem.step }}"><br>
         <input type="submit" value="提交" id="prototypeBtn">
     </div>
-    <a class="bt2">查询属性</a><br>
+    <div class="divClass">
+        <a class="bt2">原型查询</a><br>
+        <input name="searchNamePrototype" type="search" placeholder="名称">
+        <input name="searchNameUpAttr" type="search" placeholder="上级">
+        <input name="searchNameRelationAttr" type="search" placeholder="关系">
+        <input name="searchNameDownAttr" type="search" placeholder="下级">
+    <button id="searchPropotype">搜索</button>
+    <br>
+    <table class="pure-table pure-table-bordered">
+        <thead>
+        <tr bgcolor="#adff2f" align="center">
+            <th colspan="8"> 原型查询属性</th>
+        </tr>
+        <tr>
+            <th>序号</th>
+            <th>名称</th>
+            <th>描述</th>
+            <th>级别</th>
+            <th>上级属性</th>
+            <th>关系属性</th>
+            <th>下级属性</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody id="prototypeTbody">
+
+        </tbody>
+    </table>
+
+    </div>
+    <a class="bt2">查询对象属性</a><br>
     <input name="searchNameAtt" type="search" placeholder="查询属性">
     <button id="searchAtt">搜索</button>
     <br>
@@ -143,7 +174,7 @@
         </tbody>
     </table>
     <a class="bt2">添加属性</a><br>
-    <div>
+    <div class="divClass">
         <a class="desc1">方案属性名称:</a><input id="schemeName"><br>
         <a class="desc1">方案描述:</a><input id="schemeDesc"><br>
         <input type="submit" value="提交" id="btnScheme">
@@ -173,15 +204,21 @@
         </tbody>
     </table>
     <a class="bt2">添加关系属性</a><br>
-    <div>
+    <div class="divClass">
         <a class="desc1">关系属性名称:</a><input id="reName"><br>
         <a class="desc1">关系描述:</a><input id="reDesc"><br>
         <input type="submit" value="提交" id="btnRe">
 
     </div>
 
+
+    <div class="divClass">
+        <a class="bt2">环境属性</a><br>
+        <a class="desc1">上个问题 : </a><input name="upQuest" data-id=""><br>
+        <a class="desc1">当前问题 : </a><input name="downQuest" data-id=""><br>
+        <a class="desc1">原型 : </a><input name="prototypeQuest" data-id=""><br>
+        <a class="desc1">是否成功 : </a><input>
+    </div>
 </div>
-
-
 </body>
 </html>

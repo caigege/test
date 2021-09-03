@@ -517,6 +517,18 @@ def createObjInit(request):
 # 2.1分析数据 分析数据
 
 # ---Prototype---
+def getPrototype2(request):
+    name=request.GET.get("name")
+
+    pass
+
+def getHadPrototype(request):
+    name = request.GET.get("name")
+    upName = request.GET.get("upName")
+    relationId = request.GET.get("relationName")
+    downName = request.GET.get("downName")
+    print("name : ",name,type(name))
+    return HttpResponse("ok")
 def getPrototype(request):
     '''
     获取原型

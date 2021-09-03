@@ -8,16 +8,21 @@ $(document).ready(function () {
     // console.log("*1*",atrs.length,typeof (atrs),atrs)
     // console.log("*2******:", localStorage.getItem("problemAtt"));
     var atrs = JSON.parse(localStorage.getItem("problemAtt"))
+    if (atrs==null){
+        atrs=[]
+    }
     var atrr = []
 
     function getAtr() {
         atrr = [];
         let atts = localStorage.getItem("problemAtt")
         let atrs = JSON.parse(atts)
-        for (let atr = 0; atr < atrs.length; atr++) {
-
-            // console.log(atrs[atr])
-            atrr.push(atrs[atr].id)
+        if (atrs != null) {
+            for (let atr = 0; atr < atrs.length; atr++) {
+                atrr.push(atrs[atr].id)
+            }
+        } else {
+            atrs=JSON.parse("[]")
         }
         return atrr;
     }
@@ -46,6 +51,27 @@ $(document).ready(function () {
     $("#initName").change(function () {
         $("#attrDiv").find("ul").empty()
         $("#attrDiv").attr("style", "display:none;");
+    })
+    $("#searchPropotype").click(function () {
+        var name=$("input[name='searchNamePrototype']")[0].value
+        var upName=$("input[name='searchNameUpAttr']")[0].value
+        var relationName=$("input[name='searchNameRelationAttr']")[0].value
+        var downName=$("input[name='searchNameDownAttr']")[0].value
+        console.log("name，",name)
+        if(name.trim().length==0||upName.trim().length==0||relationName.trim().length==0||downName.trim().length==0){
+            alert("输入不能为空")
+        }else {
+            $.get("/getHadPrototype/", {
+                "name": name,
+                "upName": upName,
+                "relationName": relationName,
+                "downName": downName
+            }, function (e) {
+                alert(e)
+
+            })
+        }
+
     })
     $("#initBtn").click(function () {
         var name = $("#initName")[0].value
@@ -261,6 +287,7 @@ $(document).ready(function () {
 
             }
 
+
         })
     })
 
@@ -288,11 +315,11 @@ $(document).ready(function () {
                 atrs.push(pj)
                 localStorage.setItem("problemAtt", JSON.stringify(atrs));
                 // window.opener.location.reload();
-                location.reload()
+
             } else {
                 alert(e)
             }
-
+            location.reload()
         })
     })
 
