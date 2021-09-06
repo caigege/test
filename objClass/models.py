@@ -45,8 +45,8 @@ class PlanStepProblemScheme(models.Model):
     '''
     4 计划方案 收集时,不用问题属性 result: 2 待判定  1 判定通过 0 判定失败
     '''
-    name = models.CharField("计划问题名", max_length=100, null=True)
-    description = models.TextField("计划问题简介", max_length=2000, null=True)
+    name = models.CharField("计划问题方案名", max_length=100, null=True)
+    description = models.TextField("计划问题方案简介", max_length=2000, null=True)
     planStepProblemId = models.ForeignKey("PlanStepProblem", on_delete=models.DO_NOTHING, verbose_name="计划问题id")
     result = models.IntegerField("方案结果", default=2)
     step = models.IntegerField("序号", default=1)

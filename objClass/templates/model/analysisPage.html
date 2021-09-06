@@ -138,7 +138,7 @@
         <tr>
             <th>序号</th>
             <th>名称</th>
-            <th>描述</th>
+
             <th>级别</th>
             <th>上级属性</th>
             <th>关系属性</th>
@@ -200,7 +200,6 @@
         </tr>
         </thead>
         <tbody id="relationTbody">
-
         </tbody>
     </table>
     <a class="bt2">添加关系属性</a><br>
@@ -208,16 +207,17 @@
         <a class="desc1">关系属性名称:</a><input id="reName"><br>
         <a class="desc1">关系描述:</a><input id="reDesc"><br>
         <input type="submit" value="提交" id="btnRe">
-
     </div>
-
 
     <div class="divClass">
         <a class="bt2">环境属性</a><br>
-        <a class="desc1">上个问题 : </a><input name="upQuest" data-id=""><br>
-        <a class="desc1">当前问题 : </a><input name="downQuest" data-id=""><br>
-        <a class="desc1">原型 : </a><input name="prototypeQuest" data-id=""><br>
-        <a class="desc1">是否成功 : </a><input>
+        <a class="desc1">上个问题 : </a><input name="upQuest" data-id="{{ up_PspID.id }}" value="{{ up_PspID.name }}" readonly="readonly"><br>
+        <a class="desc1">当前问题 : </a><input name="myselfQuest" data-id="{{ problem.id }}" value="{{ problem.name }}" readonly="readonly"><br>
+        <a class="desc1">原型 : </a><input readonly="readonly" name="prototypeQuest" data-id=""><br>
+        <a class="desc1">是否成功 : </a><input type="radio" class="sec" value="1" name="sect"> 是
+        <input type="radio" class="sec" value="0" name="sect"> 否<br>
+        <input type="submit" id="environmentSub" value="提交">
+
     </div>
 </div>
 </body>

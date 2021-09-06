@@ -8,8 +8,8 @@ $(document).ready(function () {
     // console.log("*1*",atrs.length,typeof (atrs),atrs)
     // console.log("*2******:", localStorage.getItem("problemAtt"));
     var atrs = JSON.parse(localStorage.getItem("problemAtt"))
-    if (atrs==null){
-        atrs=[]
+    if (atrs == null) {
+        atrs = []
     }
     var atrr = []
 
@@ -22,12 +22,13 @@ $(document).ready(function () {
                 atrr.push(atrs[atr].id)
             }
         } else {
-            atrs=JSON.parse("[]")
+            atrs = JSON.parse("[]")
         }
         return atrr;
     }
 
     atrr = getAtr();
+
     // console.log(atrr)
     $("#prototypeBtn").click(function () {
         var up_Attribute = $("input[name='upAtrr']").data("id")
@@ -48,27 +49,92 @@ $(document).ready(function () {
         })
 
     })
+    $("#environmentSub").click(function () {
+
+        var prototypeName = $("input[name='prototypeQuest']")[0].value
+        var prototypeId = $("input[name='prototypeQuest']").data("id")
+        var upName = $("input[name='upQuest']")[0].value
+        var upId = $("input[name='upQuest']").data("id")
+        var myselfName = $("input[name='myselfQuest']")[0].value
+        var myselfId = $("input[name='myselfQuest']").data("id")
+        if (prototypeId == "") {
+            return alert("请选择原型")
+        }
+        var checked = 0;//未通过
+        if ($("input[name='sect']")[0].checked) {
+            // 通过
+            checked = 1;
+        }
+        $.get("/createEnvironment/", {
+            "up_PrototypeName": prototypeName,
+            "up_Prototype": prototypeId,
+
+            "up_Attribute_problemName": upName,
+            "up_Attribute_problem": upId,
+
+            "down_Attribute_problemName": myselfName,
+            "down_Attribute_problem": myselfId,
+            "checked": checked
+        }, function (e) {
+            alert(e);
+        })
+
+    })
     $("#initName").change(function () {
         $("#attrDiv").find("ul").empty()
         $("#attrDiv").attr("style", "display:none;");
     })
+    $("#prototypeTbody").on("click", "button[name='suerADD']", function () {
+        var m_id = $(this).parent().parent().find("td").eq(0).data("id");
+        var m_name = $(this).parent().parent().find("td").eq(1)[0].innerHTML;
+        // console.log(m_id,m_name)
+        $("input[name='prototypeQuest']").val(m_name);
+        $("input[name='prototypeQuest']").data("id", m_id);
+
+
+    })
     $("#searchPropotype").click(function () {
-        var name=$("input[name='searchNamePrototype']")[0].value
-        var upName=$("input[name='searchNameUpAttr']")[0].value
-        var relationName=$("input[name='searchNameRelationAttr']")[0].value
-        var downName=$("input[name='searchNameDownAttr']")[0].value
-        console.log("name，",name)
-        if(name.trim().length==0||upName.trim().length==0||relationName.trim().length==0||downName.trim().length==0){
+        var name = $("input[name='searchNamePrototype']")[0].value
+        var upName = $("input[name='searchNameUpAttr']")[0].value
+        var relationName = $("input[name='searchNameRelationAttr']")[0].value
+        var downName = $("input[name='searchNameDownAttr']")[0].value
+        console.log("name，", name)
+        if (name.trim().length == 0 && upName.trim().length == 0 && relationName.trim().length == 0 && downName.trim().length == 0) {
             alert("输入不能为空")
-        }else {
+        } else {
             $.get("/getHadPrototype/", {
                 "name": name,
                 "upName": upName,
                 "relationName": relationName,
                 "downName": downName
             }, function (e) {
-                alert(e)
+                $("#prototypeTbody").empty();
+                var eJson = JSON.parse(e);
+                // alert(eJson.length)
+                var xunh = 1
+                for (var i in eJson) {
+                    var ajson = eJson[i]
+                    // console.log("i:",i," pk: ",ajson.pk," r- ",ajson.pk in atrr," y- ",atrr)
+                    var butOwri = "<button name='suerADD'>添加</button>"
+                    // if (atrr.indexOf(ajson.pk) != -1) {
+                    //     butOwrite = "<a style='color:rgb(255,143,16);'>已存在</a>"
+                    // }
 
+                    $("#prototypeTbody").append(
+                        "<tr>" +
+                        "<td data-id='" + ajson.pk + "'>" + xunh + "</td>" +
+                        "<td>" + ajson.fields.name + "</td>" +
+                        "<td>" + ajson.fields.step + "</td>" +
+                        "<td> <input type='submit' data-id=" + ajson.fields.up_Attribute + " value=" + ajson.fields.up_AttributeName + ">" + "</td>" +
+                        "<td> <input type='submit' data-id=" + ajson.fields.relation + " value=" + ajson.fields.relationName + ">" + "</td>" +
+                        "<td> <input type='submit' data-id=" + ajson.fields.down_Attribute + " value=" + ajson.fields.down_AttributeName + ">" + "</td>" +
+                        // "<td ">" + ajson.fields.up_AttributeName + "</td>" +
+                        // "<td data-id="+ajson.fields.up_Attribute+">" + ajson.fields.up_AttributeName + "</td>" +
+                        "<td>" + butOwri + "</td>" +
+                        "</tr>"
+                    )
+
+                }
             })
         }
 

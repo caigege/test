@@ -45,6 +45,9 @@ urlpatterns = [
     path('getObjInit/', objClassView.getObjInit),
     path('addPlanStepProblemUp/', objClassView.addPlanStepProblemUp),
     path('addPlanStepProblemDown/', objClassView.addPlanStepProblemDown),
-    path('getHadPrototype/', objClassView.getHadPrototype)
+    path('getHadPrototype/', objClassView.getHadPrototype),
+    path('createEnvironmentProblemPrototype2/', objClassView.createEnvironmentProblemPrototype2),
+    path('createEnvironmentProblemPrototype/', objClassView.createEnvironmentProblemPrototype),
+    path('createEnvironment/', objClassView.createEnvironment)
 
 ]
