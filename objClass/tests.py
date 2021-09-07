@@ -3,9 +3,16 @@ def gets():
     return False, 1
 
 
+a=0
+b=0
+c=0
+for i in range(4):
+    print("a:",a,"b : ",b,"c : ",c)
+    a=+1;
+    b=b+1;
+    c+=1;
 
-
-eval('print("123"[0:2])')
+# eval('print("123"[0:2])')
 
 # print(gets()[0])
 
@@ -27,10 +34,10 @@ for j in json:
 
     if j.get("id")==1:
         json.remove(j)
-#     else:
-#         j["f"]=1
-#         print(json[0].get("id"))
-#         print(json[0]["id"])
+    else:
+        j["id"]=1111
+        # print(json[0].get("id"))
+        # print(json[0]["id"])
 print(json)
 '''
 

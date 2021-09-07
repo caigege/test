@@ -66,17 +66,21 @@
                     <td>{{ li.name }}</td>
                     <td data-id="{{ li.id }}">
                         {% if li.do == 2 %}
-                            <button name="set">主要属性</button>
-                            <button name="set">次要属性</button>
+                            <button name="set" data-id="{{ li.id }}">主要属性</button>
+                            <button name="set" data-id="{{ li.id }}">次要属性</button>
                         {% elif li.do == 1 %}
-                            <a>主要属性</a>
+                            <a style="background-color: springgreen">主要属性</a>
                         {% else %}
-                            <a>次要属性</a>
+                            <a style="background-color: cornflowerblue">次要属性</a>
                         {% endif %}
                     </td>
                     <td>{{ li.id }}</td>
                     <td>
-                        <button name="remove" data-id="{{ li.id }}">移除</button>
+                        {% if li.do == 2 %}
+                            <button name="remove" data-id="{{ li.id }}">移除</button>
+                        {% else %}
+                             -/-
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}
@@ -93,7 +97,29 @@
     <a class="desc1">方案描述:</a><a>{{ problemScheme.description }}</a><br/>
     <a class="desc2">赋予问题属性,找出问题属性</a>:<br/><textarea rows="6" cols="40"></textarea><br/>
     <div class="divClass">
-        <a class="bt2">方案对象实例</a><br>
+        <a class="bt2">环境属性1</a><br>
+        <a class="desc1">上个问题 : </a><input name="upQuest" data-id="{{ up_PspID.id }}" value="{{ up_PspID.name }}"
+                                           readonly="readonly"><br>
+        <a class="desc1">当前问题 : </a><input name="myselfQuest" data-id="{{ problem.id }}" value="{{ problem.name }}"
+                                           readonly="readonly"><br>
+        <a class="desc1">原型 : </a><input readonly="readonly" name="prototypeQuest" data-id="">
+        <button id="getPrototype">原型查询</button>
+        <br>
+        <a class="desc1">是否成功 : </a>
+        {% if problemScheme.result == 0 %}
+
+            <input type="radio" class="sec" value="1" disabled name="sect" readonly="readonly"> 是
+            <input type="radio" class="sec" value="0" disabled readonly="readonly" name="sect" checked=true> 否<br>
+        {% else %}
+            <input type="radio" class="sec" value="1" disabled readonly="readonly" name="sect" checked=true> 是
+            <input type="radio" class="sec" value="0" disabled readonly="readonly" name="sect"> 否<br>
+        {% endif %}
+        <input type="submit" id="environmentSub" value="提交">
+    </div>
+
+
+    <div class="divClass">
+        <a class="bt2">方案对象实例x1</a><br>
         <a class="desc1">实例名称:</a><input id="initName"><br>
         <a class="desc1">实例描述:</a><textarea id="initDesc" name="describ"></textarea><br>
         <a class="desc1">实例属性:</a><input name="initAtrr" readonly="readonly" data-id=""><br>
@@ -107,9 +133,9 @@
     </div>
 
 
-    <div class="divClass">
+    <div class="divClass" name="checkedAtrr">
 
-        <a class="bt2">原型</a><br>
+        <a class="bt2">原型3</a><br>
 
         <a class="desc1">原型名:&nbsp;&nbsp;</a><input type="text" name="prototypeName"><br>
         <a class="desc1">对象上级属性:&nbsp;&nbsp;</a><input type="text" name="upAtrr" readonly="readonly" data-id=""><br>
@@ -122,8 +148,8 @@
             type="text" name="stepAtrr" readonly="readonly" value="{{ problem.step }}"><br>
         <input type="submit" value="提交" id="prototypeBtn">
     </div>
-    <div class="divClass">
-        <a class="bt2">原型查询</a><br>
+    <div class="divClass" name="checkedAtrr">
+        <a class="bt2">原型查询2</a><br>
         <input name="searchNamePrototype" type="search" placeholder="名称">
         <input name="searchNameUpAttr" type="search" placeholder="上级">
         <input name="searchNameRelationAttr" type="search" placeholder="关系">
@@ -152,82 +178,71 @@
         </table>
 
     </div>
-    <a class="bt2">查询对象属性</a><br>
-    <input name="searchNameAtt" type="search" placeholder="查询属性">
-    <button id="searchAtt">搜索</button>
-    <br>
-    <table class="pure-table pure-table-bordered">
-        <thead>
-        <tr bgcolor="#adff2f" align="center">
-            <th colspan="5"> 方案属性</th>
-        </tr>
-        <tr>
-            <th>序号</th>
-            <th>名称</th>
-            <th>描述</th>
-            <th>级别</th>
-            <th>添加属性操作</th>
-        </tr>
-        </thead>
-        <tbody id="attTbody">
+    <div class="divClass" name="checkedAtrr">
+        <a class="bt2">查询对象属性4-x2</a><br>
+        <input name="searchNameAtt" type="search" placeholder="查询属性">
+        <button id="searchAtt">搜索</button>
+        <br>
+        <table class="pure-table pure-table-bordered">
+            <thead>
+            <tr bgcolor="#adff2f" align="center">
+                <th colspan="5"> 方案属性</th>
+            </tr>
+            <tr>
+                <th>序号</th>
+                <th>名称</th>
+                <th>描述</th>
+                <th>级别</th>
+                <th>添加属性操作</th>
+            </tr>
+            </thead>
+            <tbody id="attTbody">
 
-        </tbody>
-    </table>
-    <a class="bt2">添加属性</a><br>
-    <div class="divClass">
-        <a class="desc1">方案属性名称:</a><input id="schemeName"><br>
-        <a class="desc1">方案描述:</a><input id="schemeDesc"><br>
-        <input type="submit" value="提交" id="btnScheme">
+            </tbody>
+        </table>
+    </div>
+    <div class="divClass" name="checkedAtrr">
+        <a class="bt2">添加方案对象属性5-x2</a><br>
+        <div class="divClass">
+            <a class="desc1">方案属性名称:</a><input id="schemeName"><br>
+            <a class="desc1">方案描述:</a><input id="schemeDesc"><br>
+            <input type="submit" value="提交" id="btnScheme">
 
+        </div>
+    </div>
+
+    <div class="divClass" name="checkedAtrr">
+        <a class="bt2">查询关系属性4a</a><br>
+        <input name="searchNameRe" type="search" placeholder="查询关系属性">
+        <button id="searchRelation">搜索</button>
+        <br>
+        <table class="pure-table pure-table-bordered">
+            <thead>
+            <tr bgcolor="#adff2f" align="center">
+                <th colspan="5"> 关系属性</th>
+            </tr>
+            <tr>
+                <th>序号</th>
+                <th>名称</th>
+                <th>描述</th>
+                <th>级别</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="relationTbody">
+            </tbody>
+        </table>
+    </div>
+    <div class="divClass" name="checkedAtrr">
+        <a class="bt2">添加关系属性5a</a><br>
+        <div class="divClass">
+            <a class="desc1">关系属性名称:</a><input id="reName"><br>
+            <a class="desc1">关系描述:</a><input id="reDesc"><br>
+            <input type="submit" value="提交" id="btnRe">
+        </div>
     </div>
 
 
-    <a class="bt2">查询关系属性</a><br>
-    <input name="searchNameRe" type="search" placeholder="查询关系属性">
-    <button id="searchRelation">搜索</button>
-    <br>
-    <table class="pure-table pure-table-bordered">
-        <thead>
-        <tr bgcolor="#adff2f" align="center">
-            <th colspan="5"> 关系属性</th>
-        </tr>
-        <tr>
-            <th>序号</th>
-            <th>名称</th>
-            <th>描述</th>
-            <th>级别</th>
-            <th>操作</th>
-        </tr>
-        </thead>
-        <tbody id="relationTbody">
-        </tbody>
-    </table>
-    <a class="bt2">添加关系属性</a><br>
-    <div class="divClass">
-        <a class="desc1">关系属性名称:</a><input id="reName"><br>
-        <a class="desc1">关系描述:</a><input id="reDesc"><br>
-        <input type="submit" value="提交" id="btnRe">
-    </div>
-
-    <div class="divClass">
-        <a class="bt2">环境属性</a><br>
-        <a class="desc1">上个问题 : </a><input name="upQuest" data-id="{{ up_PspID.id }}" value="{{ up_PspID.name }}"
-                                           readonly="readonly"><br>
-        <a class="desc1">当前问题 : </a><input name="myselfQuest" data-id="{{ problem.id }}" value="{{ problem.name }}"
-                                           readonly="readonly"><br>
-        <a class="desc1">原型 : </a><input readonly="readonly" name="prototypeQuest" data-id=""><br>
-        <a class="desc1">是否成功 : </a>
-        {% if problemScheme.result == 0 %}
-
-            <input type="radio" class="sec" value="1" disabled name="sect" readonly="readonly"> 是
-            <input type="radio" class="sec" value="0" disabled readonly="readonly" name="sect" checked=true> 否<br>
-        {% else %}
-            <input type="radio" class="sec" value="1" disabled readonly="readonly" name="sect" checked=true> 是
-            <input type="radio" class="sec" value="0" disabled readonly="readonly" name="sect" > 否<br>
-        {% endif %}
-        <input type="submit" id="environmentSub" value="提交">
-
-    </div>
 </div>
 </body>
 </html>

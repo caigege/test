@@ -13,6 +13,17 @@ $(document).ready(function () {
     }
     var atrr = []
 
+
+    //css调整
+    $(function () {
+        // alert("123qew");
+        $("div[name='checkedAtrr']").attr("style","display:none;")
+    })
+    $("#getPrototype").click(function () {
+
+    })
+
+    //-----------------
     function getAtr() {
         atrr = [];
         let atts = localStorage.getItem("problemAtt")
@@ -82,7 +93,7 @@ $(document).ready(function () {
             "down_Attribute_problemName": myselfName,
             "down_Attribute_problem": myselfId,
             "checked": checked,
-            "schemeId":schemeId
+            "schemeId": schemeId
         }, function (e) {
             alert(e);
         })
@@ -396,7 +407,21 @@ $(document).ready(function () {
             location.reload()
         })
     })
+    $("#problemAttTbody").on("click", "button[name='set']", function () {
+        var attrId = $(this).data("id")
+        var result=$(this)[0].innerText
 
+        if(result=="主要属性"){
+            var doing=1
+        }else{
+            var doing=0
+        }
+
+        $.get("/setProblemAtt/",{"id": problemId, "attrId": attrId,"do":doing},function (e) {
+            alert(e)
+            location.reload()
+        })
+    })
     $("#problemAttTbody").on("click", "button[name='remove']", function () {
         var attrId = $(this).data("id")
         atrr = getAtr();

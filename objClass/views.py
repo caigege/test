@@ -88,6 +88,40 @@ def analysisPageGetProblemAtt(request):
     return JsonResponse(json.dumps(getProblemAtt(att), ensure_ascii=False), safe=False)
 
 
+def setProblemAtt(request):
+    '''
+    设置主要属性
+    :param request:
+    :return:
+    '''
+    id = request.GET.get("id")
+    pJson = checkStepProlem(id)
+    attrId = int(request.GET.get("attrId"))
+    do = int(request.GET.get("do"))
+    # do = request.GET.get("do")
+    # print(locals())
+    num = 0
+    for s in pJson:
+        # print("s",s," * ",type(s),s.get("id") == attrId)
+        # print("s.get('id')", s.get("id"), " * ", type(s.get("id")), s.get("id") == attrId, "attrId:", attrId,
+        # "attrIdType", type(attrId))
+        print()
+        print("s ：", s)
+        print("pJson[num]1", pJson[num], "num", num)
+        if s.get("id") == attrId:
+            # pJson.remove(s)
+
+            pJson[num]["do"] = do
+            print("pJson[num]",pJson[num],"num",num)
+        num += 1;
+    print("pJson : ",pJson)
+    res = PlanStepProblem.objects.filter(id=id).update(problemJson=pJson)
+    if res >= 1:
+        return HttpResponse("ok")
+    else:
+        return HttpResponse("更新失败")
+
+
 def analysisPageRemoveAtt(request):
     '''
     移除属性
@@ -650,7 +684,6 @@ def getAttribute_problem(request):
     name = request.GET.get("name")
     attrs = Attribute_problem.objects.filter(name__contains=name)[0:10]
 
-
     ret = serializers.serialize("python", attrs)
 
     return JsonResponse(json.dumps(ret, ensure_ascii=False), safe=False)
@@ -795,6 +828,7 @@ def hasPrototypeObject(down_Attribute, relationId, up_Attribute, step):
                 else:
                     return (False, prototypeCheckFourth)
 
+
 def createEnvironment(request):
     '''
     环境
@@ -818,12 +852,12 @@ def createEnvironment(request):
 
     # 方案id
     id = request.GET.get("schemeId")
-    pspsCheck=PlanStepProblemScheme.objects.filter(id=id)
-    print("pspsCheck:",pspsCheck)
-    print("pspsCheck:",pspsCheck[0])
-    print("pspsCheck:",pspsCheck[0].step)
-    print("pspsCheck[0].schemeJson :",pspsCheck[0].schemeJson,type(pspsCheck[0].schemeJson))
-    if(pspsCheck[0].schemeJson is None):
+    pspsCheck = PlanStepProblemScheme.objects.filter(id=id)
+    print("pspsCheck:", pspsCheck)
+    print("pspsCheck:", pspsCheck[0])
+    print("pspsCheck:", pspsCheck[0].step)
+    print("pspsCheck[0].schemeJson :", pspsCheck[0].schemeJson, type(pspsCheck[0].schemeJson))
+    if (pspsCheck[0].schemeJson is None):
         if cheked == "0":
             # 未通过
             successNum = 1
@@ -833,12 +867,13 @@ def createEnvironment(request):
         pNN = pspsCheck.update(schemeJson={"id": up_Prototype, "name": up_PrototypeName})
         print("pNN:", pNN)
         try:
-            judge=judgeEnvironmentProblemPrototype(up_Attribute_problem, down_Attribute_problem, up_Prototype)
+            judge = judgeEnvironmentProblemPrototype(up_Attribute_problem, down_Attribute_problem, up_Prototype)
 
             if (judge[0]):
                 print("---failNum111-----")
                 if (successNum == 1):
-                    EnvironmentProblemPrototype.objects.create(up_Prototype=up_Prototype, up_PrototypeName=up_PrototypeName,
+                    EnvironmentProblemPrototype.objects.create(up_Prototype=up_Prototype,
+                                                               up_PrototypeName=up_PrototypeName,
                                                                down_Attribute_problem=down_Attribute_problem,
                                                                down_Attribute_problemName=down_Attribute_problemName,
                                                                up_Attribute_problem=up_Attribute_problem,
@@ -848,7 +883,8 @@ def createEnvironment(request):
                     return HttpResponse("ok1")
                 else:
                     print("---failNum-----")
-                    EnvironmentProblemPrototype.objects.create(up_Prototype=up_Prototype, up_PrototypeName=up_PrototypeName,
+                    EnvironmentProblemPrototype.objects.create(up_Prototype=up_Prototype,
+                                                               up_PrototypeName=up_PrototypeName,
                                                                down_Attribute_problem=down_Attribute_problem,
                                                                down_Attribute_problemName=down_Attribute_problemName,
                                                                up_Attribute_problem=up_Attribute_problem,
@@ -857,9 +893,9 @@ def createEnvironment(request):
 
                     return HttpResponse("ok2")
             else:
-                env=judge[1]
-                if(successNum==1):
-                    suc=int(env[0].successNum)+1
+                env = judge[1]
+                if (successNum == 1):
+                    suc = int(env[0].successNum) + 1
                     env.update(successNum=suc)
                 else:
                     fail = int(env[0].failNum) + 1
@@ -871,6 +907,7 @@ def createEnvironment(request):
             return HttpResponse("fail successNum" + successNum + " failNum:" + failNum)
     else:
         return HttpResponse("方案已有属性")
+
 
 def judgeEnvironmentProblemPrototype(up_Attribute_problem, down_Attribute_problem, up_Prototype):
     Env = EnvironmentProblemPrototype.objects.filter(up_Attribute_problem=up_Attribute_problem)
@@ -1006,8 +1043,6 @@ def judgeEnvironmentProblemPrototype(up_Attribute_problem, down_Attribute_proble
 #         except:
 #             return HttpResponse("统计参数错误2 successNum " + successNum + " *  failNum:" + failNum + " *")
 #     return HttpResponse("ok")
-
-
 
 
 # def createExecute_plan(request):

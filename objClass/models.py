@@ -28,7 +28,7 @@ class Plan(models.Model):
 class PlanStepProblem(models.Model):
     '''
     3 计划问题 收集不考虑属性
-    problemJson:[{"id":1,"name":"问题名称","do":1}] do:1 需要解决的属性;0不需要解决属性
+    problemJson:[{"id":1,"name":"问题名称","do":1}] do:1 需要解决的属性;0不需要解决属性 2 待确认
     '''
     name = models.CharField("计划问题名", max_length=100, null=True)
     description = models.TextField("计划问题简介", max_length=2000, null=True)

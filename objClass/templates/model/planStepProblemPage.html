@@ -48,7 +48,14 @@
             <td>
                 {% if li.problemJson %}
                     {% for a in li.problemJson %}
-                        <a style="background-color: cornflowerblue"> &nbsp;{{ a.name }}&nbsp;</a>
+                        {% if a.do == 2 %}
+                            <a style="background-color: yellow"> &nbsp;{{ a.name }}&nbsp;</a>
+                        {% elif a.do == 1 %}
+                            <a style="background-color: springgreen"> &nbsp;{{ a.name }}&nbsp;</a>
+                        {% else %}
+                            <a style="background-color: cornflowerblue"> &nbsp;{{ a.name }}&nbsp;</a>
+
+                        {% endif %}
                     {% endfor %}
                 {% else %}
                     没有属性
@@ -57,6 +64,7 @@
             <td>
                 {% if li.up_planStepProblemId %}
                     {% for b in li.up_planStepProblemId %}
+
                         <a style="background-color: cornflowerblue" data-id="{{ b.id }}">
                             &nbsp;{{ b.name }}&nbsp;</a>
                     {% endfor %}
@@ -67,7 +75,7 @@
                             <option value="{{ pSP.pk }}">{{ pSP.name }}</option>
                         {% endfor %}
                     </select>
-                    <input type="button"  name="btnAddUp" value="添加">
+                    <input type="button" name="btnAddUp" value="添加">
                 {% endif %}
             </td>
             <td>
@@ -83,7 +91,7 @@
                             <option value="{{ pSP.pk }}">{{ pSP.name }}</option>
                         {% endfor %}
                     </select>
-                    <input type="button"  name="btnAddDown" value="添加">
+                    <input type="button" name="btnAddDown" value="添加">
                 {% endif %}
             </td>
             <td>
