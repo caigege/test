@@ -17,7 +17,6 @@ def page(request):
     '''
         首页
     '''
-    # return render(request, '../templates/model/Objective.html')
 
     objective = Objective.objects.all()
 
@@ -124,10 +123,6 @@ def analysisPage(request):
     # upName=""
     up_PspID = pspObject.up_planStepProblemId
     print("up_PspID: ", up_PspID, up_PspID[0])
-    # if up_PspID is None or up_PspID == "":
-    #     print("up_PspID2: ",up_PspID)
-    #     pspN = data_PlanStepProblem(up_PspID)
-    #     upName = pspN[0].name
 
     psps = data_planStepProblemScheme(planStepProblemSchemeId)
     pspsObject = psps[0];
@@ -526,9 +521,7 @@ def createObjInit(request):
             print("attr:", attr)
             if Id == attr.get("id"):
                 return HttpResponse("属性已存在")
-            # else:
-            #     print("attributeIdJson[0]:", attributeIdJson[0], type(attributeIdJson[0]))
-            #     print("attributeIds1:", attributeIds)
+
         attributeIds.append(attributeIdJson[0])
         # print("attributeIds:", attributeIds)
         objInitObject.update(attributeId=attributeIds)
@@ -627,14 +620,7 @@ def getRelation(request):
         '''
     name = request.GET.get("name")
     attrs = Relation.objects.filter(name__contains=name)[0:10]
-    # js = {}
-    # jss = []
-    # for attr in attrs:
-    #     js["name"] = attr.name
-    #     js["id"] = attr.pk
-    #     jss.append(js)
-    #     js = {}
-    # return HttpResponse(jss)
+
     ret = serializers.serialize("python", attrs)
 
     return JsonResponse(json.dumps(ret, ensure_ascii=False), safe=False)
@@ -648,14 +634,7 @@ def getAttribute(request):
     '''
     name = request.GET.get("name")
     attrs = Attribute.objects.filter(name__contains=name)[0:10]
-    # js = {}
-    # jss = []
-    # for attr in attrs:
-    #     js["name"] = attr.name
-    #     js["id"] = attr.pk
-    #     jss.append(js)
-    #     js = {}
-    # return HttpResponse(jss)
+
     ret = serializers.serialize("python", attrs)
 
     return JsonResponse(json.dumps(ret, ensure_ascii=False), safe=False)
@@ -670,15 +649,7 @@ def getAttribute_problem(request):
     '''
     name = request.GET.get("name")
     attrs = Attribute_problem.objects.filter(name__contains=name)[0:10]
-    # js = {}
-    # jss = []
-    # for attr in attrs:
-    #     js["name"] = attr.name
-    #     js["id"] = attr.pk
-    #     js["description"] = attr.description
-    #     js["lv"] = attr.Attribute_problem_Lv
-    #     jss.append(js)
-    #     js = {}
+
 
     ret = serializers.serialize("python", attrs)
 
@@ -824,7 +795,103 @@ def hasPrototypeObject(down_Attribute, relationId, up_Attribute, step):
                 else:
                     return (False, prototypeCheckFourth)
 
+def createEnvironment(request):
+    '''
+    环境
+    :return:
+    '''
+    # 原型
+    up_Prototype = request.GET.get("up_Prototype")
+    if (Prototype.objects.filter(id=up_Prototype).count() == 0):
+        return HttpResponse("原型不存在")
+    up_PrototypeName = request.GET.get("up_PrototypeName")
+    # 上级问题
+    up_Attribute_problem = request.GET.get("up_Attribute_problem")
+    up_Attribute_problemName = request.GET.get("up_Attribute_problemName")
 
+    # 下级问题
+    down_Attribute_problem = request.GET.get("down_Attribute_problem")
+    down_Attribute_problemName = request.GET.get("down_Attribute_problemName")
+
+    # 通过
+    cheked = request.GET.get("checked")
+
+    # 方案id
+    id = request.GET.get("schemeId")
+    pspsCheck=PlanStepProblemScheme.objects.filter(id=id)
+    print("pspsCheck:",pspsCheck)
+    print("pspsCheck:",pspsCheck[0])
+    print("pspsCheck:",pspsCheck[0].step)
+    print("pspsCheck[0].schemeJson :",pspsCheck[0].schemeJson,type(pspsCheck[0].schemeJson))
+    if(pspsCheck[0].schemeJson is None):
+        if cheked == "0":
+            # 未通过
+            successNum = 1
+        else:
+            # 通过
+            failNum = 1
+        pNN = pspsCheck.update(schemeJson={"id": up_Prototype, "name": up_PrototypeName})
+        print("pNN:", pNN)
+        try:
+            judge=judgeEnvironmentProblemPrototype(up_Attribute_problem, down_Attribute_problem, up_Prototype)
+
+            if (judge[0]):
+                print("---failNum111-----")
+                if (successNum == 1):
+                    EnvironmentProblemPrototype.objects.create(up_Prototype=up_Prototype, up_PrototypeName=up_PrototypeName,
+                                                               down_Attribute_problem=down_Attribute_problem,
+                                                               down_Attribute_problemName=down_Attribute_problemName,
+                                                               up_Attribute_problem=up_Attribute_problem,
+                                                               up_Attribute_problemName=up_Attribute_problemName,
+                                                               successNum=1, failNum=0)
+
+                    return HttpResponse("ok1")
+                else:
+                    print("---failNum-----")
+                    EnvironmentProblemPrototype.objects.create(up_Prototype=up_Prototype, up_PrototypeName=up_PrototypeName,
+                                                               down_Attribute_problem=down_Attribute_problem,
+                                                               down_Attribute_problemName=down_Attribute_problemName,
+                                                               up_Attribute_problem=up_Attribute_problem,
+                                                               up_Attribute_problemName=up_Attribute_problemName,
+                                                               successNum=0, failNum=1)
+
+                    return HttpResponse("ok2")
+            else:
+                env=judge[1]
+                if(successNum==1):
+                    suc=int(env[0].successNum)+1
+                    env.update(successNum=suc)
+                else:
+                    fail = int(env[0].failNum) + 1
+                    env.update(failNum=fail)
+                return HttpResponse("已更新")
+        except:
+            print("---except-----")
+            print("fail successNum" + successNum + " failNum:" + failNum)
+            return HttpResponse("fail successNum" + successNum + " failNum:" + failNum)
+    else:
+        return HttpResponse("方案已有属性")
+
+def judgeEnvironmentProblemPrototype(up_Attribute_problem, down_Attribute_problem, up_Prototype):
+    Env = EnvironmentProblemPrototype.objects.filter(up_Attribute_problem=up_Attribute_problem)
+    if (Env.count() == 0):
+        # 没查询到
+        return (True,)
+    else:
+        Env1 = Env.filter(down_Attribute_problem=down_Attribute_problem)
+        if (Env1.count() == 0):
+            # 没查询到
+            return (True,)
+        else:
+            # 没查询到
+            print("***----****")
+            Env2 = Env1.filter(up_Prototype=up_Prototype)
+            if (Env2.count() == 0):
+                # 没查询到
+                return (True,)
+            else:
+                Env2[0].successNum
+                return (False, Env2)
 # def createProblem_Execute(request):
 #     problem_collectId = request.GET.get("problem_collectId")
 #     problem_collect = Problem_collect.objects.get(id=problem_collectId)
@@ -941,90 +1008,7 @@ def hasPrototypeObject(down_Attribute, relationId, up_Attribute, step):
 #     return HttpResponse("ok")
 
 
-def createEnvironment(request):
-    '''
-    环境
-    :return:
-    '''
-    # 原型
-    up_Prototype = request.GET.get("up_Prototype")
-    if (Prototype.objects.filter(id=up_Prototype).count() == 0):
-        return HttpResponse("原型不存在")
-    up_PrototypeName = request.GET.get("up_PrototypeName")
-    # 上级问题
-    up_Attribute_problem = request.GET.get("up_Attribute_problem")
-    up_Attribute_problemName = request.GET.get("up_Attribute_problemName")
 
-    # 下级问题
-    down_Attribute_problem = request.GET.get("down_Attribute_problem")
-    down_Attribute_problemName = request.GET.get("down_Attribute_problemName")
-
-    # 通过
-    cheked = request.GET.get("checked")
-    if cheked == "0":
-        # 未通过
-        successNum = 1
-    else:
-        # 通过
-        failNum = 1
-
-    try:
-        judge=judgeEnvironmentProblemPrototype(up_Attribute_problem, down_Attribute_problem, up_Prototype)
-
-        if (judge[0]):
-            print("---failNum111-----")
-            if (successNum == 1):
-                EnvironmentProblemPrototype.objects.create(up_Prototype=up_Prototype, up_PrototypeName=up_PrototypeName,
-                                                           down_Attribute_problem=down_Attribute_problem,
-                                                           down_Attribute_problemName=down_Attribute_problemName,
-                                                           up_Attribute_problem=up_Attribute_problem,
-                                                           up_Attribute_problemName=up_Attribute_problemName,
-                                                           successNum=1, failNum=0)
-                return HttpResponse("ok")
-            else:
-                print("---failNum-----")
-                EnvironmentProblemPrototype.objects.create(up_Prototype=up_Prototype, up_PrototypeName=up_PrototypeName,
-                                                           down_Attribute_problem=down_Attribute_problem,
-                                                           down_Attribute_problemName=down_Attribute_problemName,
-                                                           up_Attribute_problem=up_Attribute_problem,
-                                                           up_Attribute_problemName=up_Attribute_problemName,
-                                                           successNum=0, failNum=1)
-                return HttpResponse("ok")
-        else:
-            env=judge[1]
-            if(successNum==1):
-                suc=int(env[0].successNum)+1
-                env.update(successNum=suc)
-            else:
-                fail = int(env[0].failNum) + 1
-                env.update(failNum=fail)
-            return HttpResponse("已更新")
-    except:
-        print("---except-----")
-        print("fail successNum" + successNum + " failNum:" + failNum)
-        return HttpResponse("fail successNum" + successNum + " failNum:" + failNum)
-
-
-def judgeEnvironmentProblemPrototype(up_Attribute_problem, down_Attribute_problem, up_Prototype):
-    Env = EnvironmentProblemPrototype.objects.filter(up_Attribute_problem=up_Attribute_problem)
-    if (Env.count() == 0):
-        # 没查询到
-        return (True,)
-    else:
-        Env1 = Env.filter(down_Attribute_problem=down_Attribute_problem)
-        if (Env1.count() == 0):
-            # 没查询到
-            return (True,)
-        else:
-            # 没查询到
-            print("***----****")
-            Env2 = Env1.filter(up_Prototype=up_Prototype)
-            if (Env2.count() == 0):
-                # 没查询到
-                return (True,)
-            else:
-                Env2[0].successNum
-                return (False, Env2)
 
 # def createExecute_plan(request):
 #     '''

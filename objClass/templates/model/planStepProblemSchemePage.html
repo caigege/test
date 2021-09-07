@@ -45,17 +45,26 @@
                 <td id="{{ li.pk }}">{{ forloop.counter }}</td>
                 <td>{{ li.name }}</td>
                 <td style="font-size: small">{{ li.description }}</td>
-                <td>{{ li.schemeJson }}</td>
+                {% if li.schemeJson is None %}
+                    <td>待分析</td>
+                {% else %}
+                    <td data-id="{{ li.schemeJson.id }}">{{ li.schemeJson.name }}</td>
+                {% endif %}
                 <td>
                     {% if li.result == 2 %}
                         <button name="passbtn">通过</button>
                         <button name="failbtn">失败</button>
                     {% elif li.result == 1 %}
                         <a style="color:green"><b>通过</b></a>
-                        <button name="fx">分析</button>
+                        {% if li.schemeJson is None %}
+                            <button name="fx">分析</button>
+                        {% endif %}
+
                     {% elif  li.result  == 0 %}
                         <a style="color:red"><b>失败</b></a>
-                        <button name="fx">分析</button>
+                        {% if li.schemeJson is None %}
+                            <button name="fx">分析</button>
+                        {% endif %}
                     {% endif %}
                 </td>
             {% endfor %}

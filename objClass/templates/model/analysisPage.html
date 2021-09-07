@@ -128,28 +128,28 @@
         <input name="searchNameUpAttr" type="search" placeholder="上级">
         <input name="searchNameRelationAttr" type="search" placeholder="关系">
         <input name="searchNameDownAttr" type="search" placeholder="下级">
-    <button id="searchPropotype">搜索</button>
-    <br>
-    <table class="pure-table pure-table-bordered">
-        <thead>
-        <tr bgcolor="#adff2f" align="center">
-            <th colspan="8"> 原型查询属性</th>
-        </tr>
-        <tr>
-            <th>序号</th>
-            <th>名称</th>
+        <button id="searchPropotype">搜索</button>
+        <br>
+        <table class="pure-table pure-table-bordered">
+            <thead>
+            <tr bgcolor="#adff2f" align="center">
+                <th colspan="8"> 原型查询属性</th>
+            </tr>
+            <tr>
+                <th>序号</th>
+                <th>名称</th>
 
-            <th>级别</th>
-            <th>上级属性</th>
-            <th>关系属性</th>
-            <th>下级属性</th>
-            <th>操作</th>
-        </tr>
-        </thead>
-        <tbody id="prototypeTbody">
+                <th>级别</th>
+                <th>上级属性</th>
+                <th>关系属性</th>
+                <th>下级属性</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="prototypeTbody">
 
-        </tbody>
-    </table>
+            </tbody>
+        </table>
 
     </div>
     <a class="bt2">查询对象属性</a><br>
@@ -211,11 +211,20 @@
 
     <div class="divClass">
         <a class="bt2">环境属性</a><br>
-        <a class="desc1">上个问题 : </a><input name="upQuest" data-id="{{ up_PspID.id }}" value="{{ up_PspID.name }}" readonly="readonly"><br>
-        <a class="desc1">当前问题 : </a><input name="myselfQuest" data-id="{{ problem.id }}" value="{{ problem.name }}" readonly="readonly"><br>
+        <a class="desc1">上个问题 : </a><input name="upQuest" data-id="{{ up_PspID.id }}" value="{{ up_PspID.name }}"
+                                           readonly="readonly"><br>
+        <a class="desc1">当前问题 : </a><input name="myselfQuest" data-id="{{ problem.id }}" value="{{ problem.name }}"
+                                           readonly="readonly"><br>
         <a class="desc1">原型 : </a><input readonly="readonly" name="prototypeQuest" data-id=""><br>
-        <a class="desc1">是否成功 : </a><input type="radio" class="sec" value="1" name="sect"> 是
-        <input type="radio" class="sec" value="0" name="sect"> 否<br>
+        <a class="desc1">是否成功 : </a>
+        {% if problemScheme.result == 0 %}
+
+            <input type="radio" class="sec" value="1" disabled name="sect" readonly="readonly"> 是
+            <input type="radio" class="sec" value="0" disabled readonly="readonly" name="sect" checked=true> 否<br>
+        {% else %}
+            <input type="radio" class="sec" value="1" disabled readonly="readonly" name="sect" checked=true> 是
+            <input type="radio" class="sec" value="0" disabled readonly="readonly" name="sect" > 否<br>
+        {% endif %}
         <input type="submit" id="environmentSub" value="提交">
 
     </div>

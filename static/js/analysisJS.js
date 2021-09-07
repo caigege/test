@@ -57,14 +57,21 @@ $(document).ready(function () {
         var upId = $("input[name='upQuest']").data("id")
         var myselfName = $("input[name='myselfQuest']")[0].value
         var myselfId = $("input[name='myselfQuest']").data("id")
+        var schemeId = $("#proNameSchemeId").data("id")
+
         if (prototypeId == "") {
             return alert("请选择原型")
         }
         var checked = 0;//未通过
-        if ($("input[name='sect']")[0].checked) {
-            // 通过
-            checked = 1;
+        if ($("input[name='sect']")[0].checked || $("input[name='sect']")[1].checked) {
+            if (!$("input[name='sect']")[0].checked) {
+                checked = 1;//通过
+            }
+        } else {
+            return alert("请是否成功")
         }
+
+
         $.get("/createEnvironment/", {
             "up_PrototypeName": prototypeName,
             "up_Prototype": prototypeId,
@@ -74,7 +81,8 @@ $(document).ready(function () {
 
             "down_Attribute_problemName": myselfName,
             "down_Attribute_problem": myselfId,
-            "checked": checked
+            "checked": checked,
+            "schemeId":schemeId
         }, function (e) {
             alert(e);
         })
